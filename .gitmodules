@@ -1,0 +1,3 @@
+[submodule "src/wasm/lame/lame-src"]
+	path = src/wasm/lame/lame-src
+	url = https://github.com/arseneyr/lame

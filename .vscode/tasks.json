@@ -1,0 +1,25 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "watch:encoders",
+      "group": "build",
+      "problemMatcher": [],
+      "label": "npm: watch:encoders",
+      "detail": "onchange \"src/wasm/**/*\" -e \"src/wasm/dist/**/*\" -- npm run build:encoders",
+      "isBackground": true,
+      "runOptions": { "runOn": "folderOpen" }
+    },
+    {
+      "type": "npm",
+      "script": "watch:js",
+      "group": "build",
+      "problemMatcher": [],
+      "label": "npm: watch:js",
+      "detail": "onchange \"src/wasm/dist/**/*\" \"src/**/*.ts\" -- npm run build:js",
+      "isBackground": true,
+      "runOptions": { "runOn": "folderOpen" }
+    }
+  ]
+}

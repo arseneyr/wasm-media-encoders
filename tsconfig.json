@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "wasm": ["src/wasm/dist/index.js"]
+    },
+    "target": "ES2019"
+  },
+  "include": ["src/**/*"]
+}
