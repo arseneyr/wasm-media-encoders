@@ -2,7 +2,6 @@ import Module, { IWasmEncoder } from "wasm";
 import { Deferred } from "./utils";
 import { compileModule } from "./compile";
 import Mp3Params from "./params/mp3";
-import getWasmUrl from "wasmUrl";
 
 interface BaseEncoderParams {
   channels: 1 | 2;
