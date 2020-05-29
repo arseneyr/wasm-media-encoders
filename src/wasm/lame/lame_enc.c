@@ -12,7 +12,6 @@ typedef struct _CFG
   float *pcm_r;
   unsigned char *mp3_buffer;
   unsigned int mp3_buffer_size;
-  unsigned int mp3_buffer_offset;
   lame_global_flags *gfp;
 } CFG, *PCFG;
 
@@ -98,38 +97,15 @@ Cleanup:
 
 int mrp_encode(PCFG cfg, unsigned int num_samples)
 {
-  int bytes_written = 0;
-  if (MP3_BUFFER_SIZE(num_samples) + cfg->mp3_buffer_offset > cfg->mp3_buffer_size)
+  if (MP3_BUFFER_SIZE(num_samples) > cfg->mp3_buffer_size)
   {
     cfg->mp3_buffer_size *= 2;
     cfg->mp3_buffer = realloc(cfg->mp3_buffer, cfg->mp3_buffer_size);
   }
-  bytes_written = lame_encode_buffer_ieee_float(cfg->gfp, cfg->pcm_l, cfg->pcm_r, num_samples, cfg->mp3_buffer + cfg->mp3_buffer_offset, cfg->mp3_buffer_size);
-
-  if (bytes_written < 0)
-  {
-    return bytes_written;
-  }
-  cfg->mp3_buffer_offset += bytes_written;
-  return bytes_written;
+  return lame_encode_buffer_ieee_float(cfg->gfp, cfg->pcm_l, cfg->pcm_r, num_samples, cfg->mp3_buffer, cfg->mp3_buffer_size);
 }
 
 int mrp_flush(PCFG cfg)
 {
-  unsigned int leftover_space = cfg->mp3_buffer_size - cfg->mp3_buffer_offset;
-  int bytes_written = 0;
-
-  if (leftover_space < 7200)
-  {
-    cfg->mp3_buffer_size += (7200 - leftover_space);
-    cfg->mp3_buffer = realloc(cfg->mp3_buffer, cfg->mp3_buffer_size);
-  }
-
-  bytes_written = lame_encode_flush(cfg->gfp, cfg->mp3_buffer + cfg->mp3_buffer_offset, cfg->mp3_buffer_size);
-  if (bytes_written < 0)
-  {
-    return bytes_written;
-  }
-  cfg->mp3_buffer_offset += bytes_written;
-  return cfg->mp3_buffer_offset;
+  return lame_encode_flush(cfg->gfp, cfg->mp3_buffer, cfg->mp3_buffer_size);
 }

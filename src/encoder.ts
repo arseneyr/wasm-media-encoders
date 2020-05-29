@@ -136,15 +136,16 @@ class Encoder<T extends SupportedMimeTypes> {
     if (bytes_written < 0) {
       throw new Error(`Error while encoding ${bytes_written}`);
     }
+    return this.get_out_buf(bytes_written);
   }
 
   public finalize() {
-    const mp3_buf_size = this.module._mrp_flush(this.ref);
-    if (mp3_buf_size < 0) {
-      throw new Error(`Error while encoding ${mp3_buf_size}`);
+    const bytes_written = this.module._mrp_flush(this.ref);
+    if (bytes_written < 0) {
+      throw new Error(`Error while encoding ${bytes_written}`);
     }
 
-    return this.get_out_buf(mp3_buf_size);
+    return this.get_out_buf(bytes_written);
   }
 }
 
