@@ -21,7 +21,7 @@ const mainConfig = {
       }/wasm/`,
     }),
     typescript(),
-    babel(),
+    babel({ babelHelpers: "bundled" }),
   ],
 };
 

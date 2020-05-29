@@ -99,7 +99,7 @@ class Encoder<T extends SupportedMimeTypes> {
 
   public prepare(params: BaseEncoderParams & EncoderParams<T>) {
     if (this.ref) {
-      this.module._mrp_free(this.ref);
+      this.module._enc_free(this.ref);
       this.ref = 0;
     }
     const paramBuffer = Encoder.paramParsers[this.mimeType].parseParams(params);
@@ -110,7 +110,7 @@ class Encoder<T extends SupportedMimeTypes> {
     this.sampleCount = params.sampleCount || 128;
     this.channelCount = params.channels;
     try {
-      this.ref = this.module._mrp_init(
+      this.ref = this.module._enc_init(
         !params.sampleCount,
         params.sampleRate,
         this.sampleCount,
@@ -132,7 +132,7 @@ class Encoder<T extends SupportedMimeTypes> {
     }
     this.pcm_l.set(pcm[0]);
     this.pcm_r.set(pcm[1]);
-    const bytes_written = this.module._mrp_encode(this.ref, 128);
+    const bytes_written = this.module._enc_encode(this.ref, 128);
     if (bytes_written < 0) {
       throw new Error(`Error while encoding ${bytes_written}`);
     }
@@ -140,7 +140,7 @@ class Encoder<T extends SupportedMimeTypes> {
   }
 
   public finalize() {
-    const bytes_written = this.module._mrp_flush(this.ref);
+    const bytes_written = this.module._enc_flush(this.ref);
     if (bytes_written < 0) {
       throw new Error(`Error while encoding ${bytes_written}`);
     }

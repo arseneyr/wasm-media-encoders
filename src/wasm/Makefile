@@ -36,7 +36,7 @@ lame.wasm: lame/lame-src/dist/lib/libmp3lame.so lame/lame_enc.c
 		-s MODULARIZE \
 		-s EXPORT_ES6 \
 		-s ALLOW_MEMORY_GROWTH \
-		-s "EXPORTED_FUNCTIONS=['_mrp_init','_mrp_free','_mrp_encode','_mrp_flush']" \
+		-s "EXPORTED_FUNCTIONS=['_enc_init','_enc_free','_enc_encode','_enc_flush']" \
 		-s ENVIRONMENT="worker,web" \
 		-o dist/mp3.js
 

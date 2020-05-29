@@ -21,7 +21,7 @@ typedef struct _PARAMS
   float vbr_quality;
 } PARAMS, *PPARAMS;
 
-void mrp_free(PCFG cfg)
+void enc_free(PCFG cfg)
 {
   if (cfg)
   {
@@ -45,7 +45,7 @@ void mrp_free(PCFG cfg)
   }
 }
 
-PCFG mrp_init(bool streaming, unsigned int sample_rate,
+PCFG enc_init(bool streaming, unsigned int sample_rate,
               unsigned int sample_count, unsigned int channel_count,
               PPARAMS params)
 {
@@ -91,11 +91,11 @@ PCFG mrp_init(bool streaming, unsigned int sample_rate,
   return cfg;
 
 Cleanup:
-  mrp_free(cfg);
+  enc_free(cfg);
   return NULL;
 }
 
-int mrp_encode(PCFG cfg, unsigned int num_samples)
+int enc_encode(PCFG cfg, unsigned int num_samples)
 {
   if (MP3_BUFFER_SIZE(num_samples) > cfg->mp3_buffer_size)
   {
@@ -105,7 +105,7 @@ int mrp_encode(PCFG cfg, unsigned int num_samples)
   return lame_encode_buffer_ieee_float(cfg->gfp, cfg->pcm_l, cfg->pcm_r, num_samples, cfg->mp3_buffer, cfg->mp3_buffer_size);
 }
 
-int mrp_flush(PCFG cfg)
+int enc_flush(PCFG cfg)
 {
   return lame_encode_flush(cfg->gfp, cfg->mp3_buffer, cfg->mp3_buffer_size);
 }
