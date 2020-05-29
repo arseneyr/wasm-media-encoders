@@ -9,14 +9,14 @@
     "url": "https://github.com/arseneyr/wasm-encoders"
   },
   "scripts": {
-    "build:encoders": "\"docker run --rm -it -e NODE_ENV -v %cd%:/src -v emsdk_cache:/emsdk_portable/.data -w /src/src/wasm trzeci/emscripten:1.39.10-upstream make\" && node src/wasm/patch",
+    "build:encoders": "\"docker run --rm -it -e NODE_ENV -v %cd%:/src -v emsdk_cache:/emsdk_portable/.data -w /src/src/wasm trzeci/emscripten:1.39.10-upstream make\" && node src/wasm/postprocess",
     "clean:encoders": "docker run --rm -it -v %cd%:/src -w /src/src/wasm trzeci/emscripten:1.39.10-upstream make clean",
-    "build:js": "rollup -c && copyfiles -f src/wasm/dist/*.wasm dist/wasm",
+    "build:js": "rollup -c && copyfiles -f src/wasm/build/*.wasm dist/wasm",
     "build": "cross-env-shell NODE_ENV=development \"npm run build:encoders && npm run build:js\"",
     "build:prod": "cross-env-shell NODE_ENV=production \"npm run build:encoders && npm run build:js\"",
     "clean": "rimraf dist src/wasm/dist",
-    "watch:encoders": "onchange \"src/wasm/**/*\" -e \"src/wasm/dist/**/*\" -- cross-env NODE_ENV=development npm run build:encoders",
-    "watch:js": "onchange \"src/wasm/dist/**/*\" \"src/**/*.ts\" \"rollup.config.js\" -- cross-env NODE_ENV=development npm run build:js",
+    "watch:encoders": "onchange \"src/wasm/**/*\" -e \"src/wasm/build/**/*\" -- cross-env NODE_ENV=development npm run build:encoders",
+    "watch:js": "onchange \"src/wasm/build/**/*\" \"src/**/*.ts\" \"rollup.config.js\" -- cross-env NODE_ENV=development npm run build:js",
     "prepack": "node scripts/prepack",
     "prepare": "npm run clean && npm run build:prod"
   },

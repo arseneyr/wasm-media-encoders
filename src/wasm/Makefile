@@ -26,7 +26,7 @@ else
 endif
 
 lame.wasm: lame/lame-src/dist/lib/libmp3lame.so lame/lame_enc.c
-	@mkdir -p dist
+	@mkdir -p build
 	emcc $^ \
 	  -DNDEBUG $(emcc_flags) -Ilame/lame-src/dist/include \
 		--pre-js pre-js.js \
@@ -38,7 +38,7 @@ lame.wasm: lame/lame-src/dist/lib/libmp3lame.so lame/lame_enc.c
 		-s ALLOW_MEMORY_GROWTH \
 		-s "EXPORTED_FUNCTIONS=['_enc_init','_enc_free','_enc_encode','_enc_flush']" \
 		-s ENVIRONMENT="worker,web" \
-		-o dist/mp3.js
+		-o build/mp3.js
 
 clean:
 	emmake $(MAKE) -C lame/lame-src distclean

@@ -3,7 +3,7 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "wasm": ["src/wasm/dist/index.js"]
+      "wasm": ["src/wasm/build/index.js"]
     },
     "target": "ES2019"
   },
