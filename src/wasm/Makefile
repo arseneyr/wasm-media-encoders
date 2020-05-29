@@ -17,10 +17,12 @@ lame/lame-src/dist/lib/libmp3lame.so:
 	emmake make -j8 && \
 	emmake make install
 
-ifeq ($(NODE_ENV),development)
-  emcc_flags = -O0 -g
-else
+ifeq ($(NODE_ENV),production)
   emcc_flags = -Oz
+	closure_flag = 1
+else
+  emcc_flags = -O0 -g
+	closure_flag = 0
 endif
 
 lame.wasm: lame/lame-src/dist/lib/libmp3lame.so lame/lame_enc.c
@@ -28,6 +30,7 @@ lame.wasm: lame/lame-src/dist/lib/libmp3lame.so lame/lame_enc.c
 	emcc $^ \
 	  -DNDEBUG $(emcc_flags) -Ilame/lame-src/dist/include \
 		--pre-js pre-js.js \
+		--closure $(closure_flag) \
 		-s MALLOC=emmalloc \
 		-s MINIMAL_RUNTIME \
 		-s MODULARIZE \
