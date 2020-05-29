@@ -2,6 +2,7 @@ import typescript from "@rollup/plugin-typescript";
 import { terser } from "rollup-plugin-terser";
 import replace from "@rollup/plugin-replace";
 import pkg from "./package.json";
+import babel from "@rollup/plugin-babel";
 
 const isDev = process.env.NODE_ENV === "development";
 const isProd = process.env.NODE_ENV === "production";
@@ -20,6 +21,7 @@ const mainConfig = {
       }/wasm/`,
     }),
     typescript(),
+    babel(),
   ],
 };
 
