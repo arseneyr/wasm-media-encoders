@@ -20,11 +20,6 @@ type Mp3CbrValues =
 
 type Mp3Params = XOR<{ cbrRate?: Mp3CbrValues }, { vbrQuality?: number }>;
 
-export interface Mp3Config {
-  mimeType: "mpeg/audio";
-  parameters: Mp3Params;
-}
-
 function parseMp3Params(params: Mp3Params): Uint32Array {
   switch (params.cbrRate) {
     case undefined:

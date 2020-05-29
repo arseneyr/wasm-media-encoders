@@ -2,10 +2,7 @@ import Module, { IWasmEncoder } from "wasm";
 import { Deferred } from "./utils";
 import { compileModule } from "./compile";
 import Mp3Params from "./params/mp3";
-
-declare global {
-  export const __WASM_URL_PREFIX__: string;
-}
+import getWasmUrl from "wasmUrl";
 
 interface BaseEncoderParams {
   channels: 1 | 2;
@@ -32,7 +29,7 @@ type EncoderParams<T extends keyof ParamMap> = Parameters<
 
 type SupportedMimeTypes = keyof ParamMap;
 
-export class Encoder<T extends SupportedMimeTypes> {
+class Encoder<T extends SupportedMimeTypes> {
   private readonly isReady = new Deferred<void>();
   private module!: IWasmEncoder;
 
@@ -43,11 +40,6 @@ export class Encoder<T extends SupportedMimeTypes> {
   private static readonly paramParsers: ParamMap = {
     [Mp3Params.mimeType]: Mp3Params,
   };
-
-  private constructor(
-    private readonly mimeType: T,
-    private readonly wasm?: string | ArrayBuffer | WebAssembly.Module
-  ) {}
 
   private onReady = (module: IWasmEncoder) => {
     this.module = module;
@@ -83,12 +75,16 @@ export class Encoder<T extends SupportedMimeTypes> {
     return this.module.HEAPU8.subarray(ptr, ptr + size);
   }
 
+  public constructor(
+    private readonly mimeType: T,
+    private readonly wasm?: string | ArrayBuffer | WebAssembly.Module
+  ) {}
+
   public async init() {
     let wasm = this.wasm;
     if (!wasm) {
       wasm =
-        __WASM_URL_PREFIX__ +
-        "/" +
+        "__WASM_URL_PREFIX__" +
         Encoder.paramParsers[this.mimeType].wasmFilename;
     }
 
@@ -152,3 +148,5 @@ export class Encoder<T extends SupportedMimeTypes> {
     return this.get_out_buf(mp3_buf_size);
   }
 }
+
+export default Encoder;
