@@ -1,7 +1,8 @@
-import Module, { IWasmEncoder } from "wasm";
+import Module from "./wasm/build/index";
 import { Deferred } from "./utils";
 import { compileModule } from "./compile";
 import Mp3Params from "./params/mp3";
+import { name, version } from "../package.json";
 
 interface BaseEncoderParams {
   channels: 1 | 2;
@@ -30,7 +31,7 @@ type SupportedMimeTypes = keyof ParamMap;
 
 class Encoder<T extends SupportedMimeTypes> {
   private readonly isReady = new Deferred<void>();
-  private module!: IWasmEncoder;
+  private module!: typeof Module;
 
   private ref!: number;
   private channelCount!: number;
@@ -40,7 +41,7 @@ class Encoder<T extends SupportedMimeTypes> {
     [Mp3Params.mimeType]: Mp3Params,
   };
 
-  private onReady = (module: IWasmEncoder) => {
+  private onReady = (module: typeof Module) => {
     this.module = module;
     this.isReady.resolve();
   };
@@ -76,20 +77,29 @@ class Encoder<T extends SupportedMimeTypes> {
 
   public constructor(
     private readonly mimeType: T,
-    private readonly wasm?: string | ArrayBuffer | WebAssembly.Module
-  ) {}
+    private readonly wasm?:
+      | string
+      | ArrayBuffer
+      | Uint8Array
+      | WebAssembly.Module
+  ) {
+    if (!Encoder.paramParsers[mimeType]) {
+      throw new Error(`Unsupported mime type ${mimeType}`);
+    }
+  }
 
   public async init() {
     let wasm = this.wasm;
     if (!wasm) {
       wasm =
-        "__WASM_URL_PREFIX__" +
+        `https://unpkg.com/${name}@${version}/wasm/` +
         Encoder.paramParsers[this.mimeType].wasmFilename;
     }
 
     if (typeof wasm === "string") {
       wasm = await compileModule(wasm);
     }
+
     Module({
       wasm,
       onReady: this.onReady,

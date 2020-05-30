@@ -9,7 +9,6 @@ const genPath = (...segments) => path.resolve(basePath, ...segments);
 const newPkg = {
   ...pkg,
   main: "index.js",
-  module: "es/index.js",
   scripts: undefined,
 };
 

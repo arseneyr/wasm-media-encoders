@@ -1,7 +1,6 @@
-import typescript from "@rollup/plugin-typescript";
+import typescript from "rollup-plugin-ts";
 import { terser } from "rollup-plugin-terser";
-import replace from "@rollup/plugin-replace";
-import pkg from "./package.json";
+import json from "@rollup/plugin-json";
 import babel from "@rollup/plugin-babel";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -12,32 +11,20 @@ const mainConfig = {
   output: {
     file: "dist/index.js",
     format: "cjs",
+    plugins: [...(isProd ? [terser()] : [])],
   },
 
-  plugins: [
-    replace({
-      __WASM_URL_PREFIX__: `https://unpkg.com/wasm-encoders${
-        isProd ? `@${pkg.version}` : ""
-      }/wasm/`,
-    }),
-    typescript(),
-    babel({ babelHelpers: "bundled" }),
-  ],
-};
-
-const esConfig = {
-  ...mainConfig,
-  output: { file: "dist/es/index.js", format: "es" },
+  plugins: [json(), typescript(), babel({ babelHelpers: "bundled" })],
 };
 
 const umdConfig = {
   ...mainConfig,
   output: {
+    ...mainConfig.output,
     file: "dist/umd/encoder.min.js",
     name: "WasmEncoder",
     format: "umd",
-    plugins: [terser()],
   },
 };
 
-export default [mainConfig, esConfig, umdConfig];
+export default [mainConfig, umdConfig];

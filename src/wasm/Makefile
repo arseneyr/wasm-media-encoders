@@ -30,7 +30,6 @@ lame.wasm: lame/lame-src/dist/lib/libmp3lame.so lame/lame_enc.c
 	emcc $^ \
 	  -DNDEBUG $(emcc_flags) -Ilame/lame-src/dist/include \
 		--pre-js pre-js.js \
-		--closure $(closure_flag) \
 		-s MALLOC=emmalloc \
 		-s MINIMAL_RUNTIME \
 		-s MODULARIZE \

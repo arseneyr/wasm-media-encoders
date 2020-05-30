@@ -1,6 +1,6 @@
-Module["ready"] = function () {
+function ready() {
   if (Module["onReady"]) Module["onReady"](Module);
-};
+}
 Module["_enc_init"] = _enc_init;
 Module["_enc_encode"] = _enc_encode;
 Module["_enc_flush"] = _enc_flush;

@@ -1,11 +1,10 @@
 {
   "compilerOptions": {
     "strict": true,
-    "baseUrl": ".",
-    "paths": {
-      "wasm": ["src/wasm/build/index.js"]
-    },
-    "target": "ES2019"
-  },
-  "include": ["src/**/*"]
+    "target": "ES2019",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "declaration": true,
+    "rootDirs": ["src/wasm/build", "src/wasm/types"]
+  }
 }
