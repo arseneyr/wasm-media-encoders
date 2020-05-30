@@ -1,5 +1,8 @@
 function intArrayFromBase64(s: string) {
   try {
+    if (Buffer) {
+      return Buffer.from(s, "base64");
+    }
     var decoded = atob(s);
     var bytes = new Uint8Array(decoded.length);
     for (var i = 0; i < decoded.length; ++i) {

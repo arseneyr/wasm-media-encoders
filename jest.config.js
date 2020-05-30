@@ -1,6 +1,5 @@
-module.exports = {
+const common = {
   preset: "ts-jest/presets/js-with-ts",
-  testEnvironment: "node",
   globals: {
     "ts-jest": {
       tsConfig: {
@@ -8,4 +7,11 @@ module.exports = {
       },
     },
   },
+};
+
+module.exports = {
+  projects: [
+    { ...common, displayName: "browser", testEnvironment: "jsdom" },
+    { ...common, displayName: "node", testEnvironment: "node" },
+  ],
 };

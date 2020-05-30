@@ -29,7 +29,7 @@ type EncoderParams<T extends keyof ParamMap> = Parameters<
 
 type SupportedMimeTypes = keyof ParamMap;
 
-class Encoder<T extends SupportedMimeTypes> {
+class WasmEncoder<T extends SupportedMimeTypes> {
   private readonly isReady = new Deferred<void>();
   private module!: typeof Module;
 
@@ -83,17 +83,17 @@ class Encoder<T extends SupportedMimeTypes> {
       | Uint8Array
       | WebAssembly.Module
   ) {
-    if (!Encoder.paramParsers[mimeType]) {
+    if (!WasmEncoder.paramParsers[mimeType]) {
       throw new Error(`Unsupported mime type ${mimeType}`);
     }
   }
 
   public async init() {
     let wasm = this.wasm;
-    if (!wasm) {
+    if (wasm === undefined) {
       wasm =
         `https://unpkg.com/${name}@${version}/wasm/` +
-        Encoder.paramParsers[this.mimeType].wasmFilename;
+        WasmEncoder.paramParsers[this.mimeType].wasmFilename;
     }
 
     if (typeof wasm === "string") {
@@ -112,7 +112,9 @@ class Encoder<T extends SupportedMimeTypes> {
       this.module._enc_free(this.ref);
       this.ref = 0;
     }
-    const paramBuffer = Encoder.paramParsers[this.mimeType].parseParams(params);
+    const paramBuffer = WasmEncoder.paramParsers[this.mimeType].parseParams(
+      params
+    );
     const paramAlloc = this.module._malloc(paramBuffer.byteLength);
     if (!paramAlloc) {
       throw new Error("Failed to allocate parameter buffer");
@@ -159,4 +161,4 @@ class Encoder<T extends SupportedMimeTypes> {
   }
 }
 
-export default Encoder;
+export default WasmEncoder;
