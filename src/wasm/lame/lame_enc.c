@@ -1,6 +1,6 @@
 #include <lame/lame.h>
-#include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 // 30 seconds of audio at 48kHz
 #define MP3_BUFFER_SIZE(num_samples) (1.25 * (num_samples) + 7200)
@@ -45,7 +45,7 @@ void enc_free(PCFG cfg)
   }
 }
 
-PCFG enc_init(bool streaming, unsigned int sample_rate,
+PCFG enc_init(unsigned int sample_rate,
               unsigned int sample_count, unsigned int channel_count,
               PPARAMS params)
 {
@@ -62,7 +62,7 @@ PCFG enc_init(bool streaming, unsigned int sample_rate,
   }
   cfg->pcm_l = malloc(sample_count * sizeof(*cfg->pcm_l));
   cfg->pcm_r = malloc(sample_count * sizeof(*cfg->pcm_r));
-  cfg->mp3_buffer_size = streaming ? MP3_BUFFER_SIZE(sample_count) : DEFAULT_MP3_SIZE;
+  cfg->mp3_buffer_size = MP3_BUFFER_SIZE(sample_count);
   cfg->mp3_buffer =
       malloc(cfg->mp3_buffer_size);
   cfg->gfp = lame_init();

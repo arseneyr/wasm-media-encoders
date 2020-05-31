@@ -20,7 +20,7 @@ type Mp3CbrValues =
 
 type Mp3Params = XOR<{ cbrRate?: Mp3CbrValues }, { vbrQuality?: number }>;
 
-function parseMp3Params(params: Mp3Params): Uint32Array {
+function parseMp3Params(params: Mp3Params) {
   switch (params.cbrRate) {
     case undefined:
     case 8:
@@ -50,9 +50,9 @@ function parseMp3Params(params: Mp3Params): Uint32Array {
     }
   }
 
-  const ret = new Uint32Array(2);
+  const ret = new Int32Array(2);
   ret[0] = params.cbrRate ?? 0;
-  new Float32Array(ret)[1] =
+  new Float32Array(ret.buffer)[1] =
     params.vbrQuality ?? params.cbrRate !== undefined ? -1 : 5;
 
   return ret;

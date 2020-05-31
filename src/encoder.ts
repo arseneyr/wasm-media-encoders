@@ -48,11 +48,17 @@ class WasmEncoder<T extends SupportedMimeTypes> {
 
   private get pcm_l() {
     const ptr = this.module.HEAP32[this.ref >> 2];
-    return this.module.HEAPF32.subarray(ptr >> 2, (ptr >> 2) + 128);
+    return this.module.HEAPF32.subarray(
+      ptr >> 2,
+      (ptr >> 2) + this.sampleCount
+    );
   }
   private get pcm_r() {
     const ptr = this.module.HEAP32[(this.ref + 4) >> 2];
-    return this.module.HEAPF32.subarray(ptr >> 2, (ptr >> 2) + 128);
+    return this.module.HEAPF32.subarray(
+      ptr >> 2,
+      (ptr >> 2) + this.sampleCount
+    );
   }
 
   private realloc_pcm() {
@@ -105,6 +111,7 @@ class WasmEncoder<T extends SupportedMimeTypes> {
       onReady: this.onReady,
     });
     await this.isReady.promise;
+    return this;
   }
 
   public prepare(params: BaseEncoderParams & EncoderParams<T>) {
@@ -119,11 +126,11 @@ class WasmEncoder<T extends SupportedMimeTypes> {
     if (!paramAlloc) {
       throw new Error("Failed to allocate parameter buffer");
     }
+    this.module.HEAP32.set(paramBuffer, paramAlloc >> 2);
     this.sampleCount = params.sampleCount || 128;
     this.channelCount = params.channels;
     try {
       this.ref = this.module._enc_init(
-        !params.sampleCount,
         params.sampleRate,
         this.sampleCount,
         params.channels,
@@ -144,7 +151,7 @@ class WasmEncoder<T extends SupportedMimeTypes> {
     }
     this.pcm_l.set(pcm[0]);
     this.pcm_r.set(pcm[1]);
-    const bytes_written = this.module._enc_encode(this.ref, 128);
+    const bytes_written = this.module._enc_encode(this.ref, pcm[0].length);
     if (bytes_written < 0) {
       throw new Error(`Error while encoding ${bytes_written}`);
     }

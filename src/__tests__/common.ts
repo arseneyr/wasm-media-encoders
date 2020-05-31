@@ -47,14 +47,16 @@ describe("fetching from url", () => {
   });
 
   test("fetch from unpkg", async () => {
-    await expect(new WasmEncoder("audio/mpeg").init()).resolves.toBeUndefined();
+    await expect(new WasmEncoder("audio/mpeg").init()).resolves.toBeInstanceOf(
+      WasmEncoder
+    );
     expect(fetchMock.mock.calls[0][0]).toMatch("unpkg.com");
   });
 
   test("fetch from custom url", async () => {
     await expect(
       new WasmEncoder("audio/mpeg", "https://example.com/mp3.wasm").init()
-    ).resolves.toBeUndefined();
+    ).resolves.toBeInstanceOf(WasmEncoder);
     expect(fetchMock.mock.calls[0][0]).toMatch("example.com");
   });
 
@@ -64,14 +66,14 @@ describe("fetching from url", () => {
 
     await expect(
       new WasmEncoder("audio/mpeg", dataUri).init()
-    ).resolves.toBeUndefined();
+    ).resolves.toBeInstanceOf(WasmEncoder);
     expect(fetchMock.mock.calls).toHaveLength(0);
   });
 
   test("use buffer", async () => {
     await expect(
       new WasmEncoder("audio/mpeg", wasm["mp3.wasm"]).init()
-    ).resolves.toBeUndefined();
+    ).resolves.toBeInstanceOf(WasmEncoder);
     expect(fetchMock.mock.calls).toHaveLength(0);
   });
 
@@ -81,7 +83,7 @@ describe("fetching from url", () => {
         "audio/mpeg",
         await WebAssembly.compile(wasm["mp3.wasm"])
       ).init()
-    ).resolves.toBeUndefined();
+    ).resolves.toBeInstanceOf(WasmEncoder);
     expect(fetchMock.mock.calls).toHaveLength(0);
   });
 });

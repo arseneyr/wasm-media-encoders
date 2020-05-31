@@ -2,7 +2,6 @@ interface IWasmEncoder
   extends EmscriptenModule,
     EmscriptenModuleFactory<IWasmEncoder> {
   _enc_init(
-    streaming: boolean,
     sample_rate: number,
     sample_count: number,
     channel_count: number,

@@ -41,6 +41,7 @@
     "rollup-plugin-ts": "^1.2.24",
     "ts-jest": "^26.0.0",
     "tslib": "^2.0.0",
-    "typescript": "^3.9.3"
+    "typescript": "^3.9.3",
+    "wav": "^1.0.2"
   }
 }
