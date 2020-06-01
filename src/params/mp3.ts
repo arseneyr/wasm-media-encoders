@@ -53,7 +53,7 @@ function parseMp3Params(params: Mp3Params) {
   const ret = new Int32Array(2);
   ret[0] = params.cbrRate ?? 0;
   new Float32Array(ret.buffer)[1] =
-    params.vbrQuality ?? params.cbrRate !== undefined ? -1 : 5;
+    params.vbrQuality ?? (params.cbrRate !== undefined ? -1 : 4);
 
   return ret;
 }

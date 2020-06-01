@@ -5,6 +5,9 @@ const common = {
       tsConfig: {
         allowJs: true,
       },
+      diagnostics: {
+        ignoreCodes: [151001],
+      },
     },
   },
 };

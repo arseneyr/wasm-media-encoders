@@ -70,10 +70,11 @@ PCFG enc_init(unsigned int sample_rate,
   {
     goto Cleanup;
   }
-
+  id3tag_init(cfg->gfp);
   lame_set_num_channels(cfg->gfp, channel_count);
   lame_set_in_samplerate(cfg->gfp, sample_rate);
-  if (params->vbr_quality > 0)
+  lame_set_bWriteVbrTag(cfg->gfp, 0);
+  if (params->vbr_quality >= 0)
   {
     lame_set_VBR(cfg->gfp, vbr_default);
     lame_set_VBR_quality(cfg->gfp, params->vbr_quality);
@@ -83,6 +84,7 @@ PCFG enc_init(unsigned int sample_rate,
     lame_set_VBR(cfg->gfp, vbr_off);
     lame_set_brate(cfg->gfp, params->bitrate);
   }
+  lame_set_write_id3tag_automatic(cfg->gfp, 0);
   if (lame_init_params(cfg->gfp) < 0)
   {
     goto Cleanup;

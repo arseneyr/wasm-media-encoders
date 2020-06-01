@@ -1,13 +1,14 @@
 all:  lame.wasm
 
-lame/lame-src/dist/lib/libmp3lame.so:
+lame/lame-src/dist/lib/libmp3lame.a:
 	cd lame/lame-src && \
 	git reset --hard && \
 	emconfigure ./configure -C \
 		CFLAGS="-DNDEBUG -Oz -flto" \
+		LDFLAGS="-Oz -flto" \
 		--prefix="$$(pwd)/dist" \
 		--host=x86-none-linux \
-		--disable-static \
+		--disable-shared \
 		\
 		--disable-gtktest \
 		--disable-analyzer-hooks \
@@ -18,14 +19,12 @@ lame/lame-src/dist/lib/libmp3lame.so:
 	emmake make install
 
 ifeq ($(NODE_ENV),production)
-  emcc_flags = -Oz
-	closure_flag = 1
+  emcc_flags = -Oz -flto --llvm-lto 1
 else
   emcc_flags = -O0 -g
-	closure_flag = 0
 endif
 
-lame.wasm: lame/lame-src/dist/lib/libmp3lame.so lame/lame_enc.c
+lame.wasm: lame/lame-src/dist/lib/libmp3lame.a lame/lame_enc.c
 	@mkdir -p build
 	emcc $^ \
 	  -DNDEBUG $(emcc_flags) -Ilame/lame-src/dist/include \

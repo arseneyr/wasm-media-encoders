@@ -4,7 +4,7 @@ import WasmEncoder from "../encoder";
 
 const wav = require("wav");
 
-let wavFile!: Int16Array;
+let wavData!: [Float32Array, Float32Array];
 let encoder: WasmEncoder<"audio/mpeg">;
 let format: any;
 
@@ -31,29 +31,82 @@ beforeAll(async () => {
     resolve(__dirname, "../wasm/lame/lame-src/testcase.wav")
   ).pipe(reader);
 
-  [encoder, wavFile] = await Promise.all<typeof encoder, Int16Array>([
+  [encoder, wavData] = await Promise.all<typeof encoder, typeof wavData>([
     new WasmEncoder(
       "audio/mpeg",
       await fs.readFile(resolve(__dirname, "../wasm/build/mp3.wasm"))
     ).init(),
-    p,
+    p.then((b) => {
+      const pcm_l = new Float32Array(b.length / 2);
+      const pcm_r = new Float32Array(b.length / 2);
+      b.forEach(
+        (s, i) => ((i & 1 ? pcm_r : pcm_l)[Math.floor(i / 2)] = s / 32768)
+      );
+      return [pcm_l, pcm_r];
+    }),
   ]);
 });
 
-test("yo", async () => {
-  const pcm_l = new Float32Array(wavFile.length / 2);
-  const pcm_r = new Float32Array(wavFile.length / 2);
-  wavFile.forEach(
-    (s, i) => ((i & 1 ? pcm_r : pcm_l)[Math.floor(i / 2)] = s / 32768)
-  );
+test.each([
+  { vbrQuality: 0 },
+  { vbrQuality: 5 },
+  { cbrRate: 8 as const },
+  { cbrRate: 128 as const },
+])("mp3 %p", async (params) => {
   encoder.prepare({
     channels: format.channels,
     sampleRate: format.sampleRate,
-    sampleCount: wavFile.length / 2,
+    sampleCount: wavData[0].length,
+    ...params,
   });
-  // shouldnt work??
-  const outBuf = Buffer.concat([
-    encoder.encode([pcm_l, pcm_r]),
-    encoder.finalize(),
-  ]);
+
+  let outBuf = Buffer.from(encoder.encode(wavData));
+  outBuf = Buffer.concat([outBuf, encoder.finalize()]);
+  const refFile = await fs.readFile(
+    resolve(
+      __dirname,
+      "test_mp3",
+      (params.vbrQuality !== undefined
+        ? `v_${params.vbrQuality}`
+        : `c_${params.cbrRate}`) + ".mp3"
+    )
+  );
+  expect(refFile.compare(outBuf)).toBe(0);
+});
+
+test.skip("vs c lame", async () => {
+  encoder.prepare({
+    channels: format.channels,
+    sampleRate: format.sampleRate,
+    sampleCount: wavData[0].length,
+    vbrQuality: 0,
+  });
+
+  let outBuf = Buffer.from(encoder.encode(wavData));
+  outBuf = Buffer.concat([outBuf, encoder.finalize()]);
+  const refFile = await fs.readFile(resolve(__dirname, "testcase.mp3"));
+  await fs.writeFile(resolve(__dirname, "gen.mp3"), outBuf);
+  expect(
+    refFile.reduce((a, b, i) => a + (b !== outBuf[i] ? 1 : 0), 0)
+  ).toBeLessThan(5);
+  await fs.writeFile(resolve(__dirname, "test_mp3", "v_0.mp3"), outBuf);
+});
+
+test("invalid params", () => {
+  expect(() =>
+    encoder.prepare({
+      channels: format.channels,
+      sampleRate: format.sampleRate,
+      sampleCount: wavData[0].length,
+      vbrQuality: 10,
+    })
+  ).toThrowError();
+  expect(() =>
+    encoder.prepare({
+      channels: format.channels,
+      sampleRate: format.sampleRate,
+      sampleCount: wavData[0].length,
+      cbrRate: 1 as any,
+    })
+  ).toThrowError();
 });
