@@ -1,7 +1,7 @@
 import Module from "./wasm/build/index";
 import { Deferred } from "./utils";
 import { compileModule } from "./compile";
-import Mp3Params from "./params/mp3";
+import Mp3Params from "./wasm/lame/params";
 import { name, version } from "../package.json";
 
 interface BaseEncoderParams {

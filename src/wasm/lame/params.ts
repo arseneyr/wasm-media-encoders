@@ -1,4 +1,4 @@
-import { XOR } from "../utils";
+import { XOR } from "../../utils";
 
 type Mp3CbrValues =
   | 8
