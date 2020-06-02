@@ -1,6 +1,6 @@
 import { createReadStream, promises as fs } from "fs";
 import { resolve } from "path";
-import WasmEncoder from "../encoder";
+import { createEncoder, WasmEncoder } from "../encoder";
 
 const wav = require("wav");
 
@@ -32,10 +32,10 @@ beforeAll(async () => {
   ).pipe(reader);
 
   [encoder, wavData] = await Promise.all<typeof encoder, typeof wavData>([
-    new WasmEncoder(
+    createEncoder(
       "audio/mpeg",
       await fs.readFile(resolve(__dirname, "../wasm/build/mp3.wasm"))
-    ).init(),
+    ),
     p.then((b) => {
       const pcm_l = new Float32Array(b.length / 2);
       const pcm_r = new Float32Array(b.length / 2);
@@ -53,7 +53,7 @@ test.each([
   { cbrRate: 8 as const },
   { cbrRate: 128 as const },
 ])("mp3 %p", async (params) => {
-  encoder.prepare({
+  encoder.configure({
     channels: format.channels,
     sampleRate: format.sampleRate,
     sampleCount: wavData[0].length,
@@ -75,7 +75,7 @@ test.each([
 });
 
 test.skip("vs c lame", async () => {
-  encoder.prepare({
+  encoder.configure({
     channels: format.channels,
     sampleRate: format.sampleRate,
     sampleCount: wavData[0].length,
@@ -94,7 +94,7 @@ test.skip("vs c lame", async () => {
 
 test("invalid params", () => {
   expect(() =>
-    encoder.prepare({
+    encoder.configure({
       channels: format.channels,
       sampleRate: format.sampleRate,
       sampleCount: wavData[0].length,
@@ -102,7 +102,7 @@ test("invalid params", () => {
     })
   ).toThrowError();
   expect(() =>
-    encoder.prepare({
+    encoder.configure({
       channels: format.channels,
       sampleRate: format.sampleRate,
       sampleCount: wavData[0].length,

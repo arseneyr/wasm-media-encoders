@@ -23,27 +23,19 @@ type MapDiscriminatedUnion<T extends Record<K, string>, K extends keyof T> = {
 
 type ParamMap = MapDiscriminatedUnion<typeof Mp3Params, "mimeType">;
 
-type EncoderParams<T extends keyof ParamMap> = Parameters<
-  ParamMap[T]["parseParams"]
->[0];
+type ParamParser<T extends keyof ParamMap> = ParamMap[T]["parseParams"];
+
+type EncoderParams<T extends keyof ParamMap> = Parameters<ParamParser<T>>[0];
 
 type SupportedMimeTypes = keyof ParamMap;
 
 class WasmEncoder<T extends SupportedMimeTypes> {
-  private readonly isReady = new Deferred<void>();
-  private module!: typeof Module;
-
   private ref!: number;
   private channelCount!: number;
   private sampleCount!: number;
 
   private static readonly paramParsers: ParamMap = {
     [Mp3Params.mimeType]: Mp3Params,
-  };
-
-  private onReady = (module: typeof Module) => {
-    this.module = module;
-    this.isReady.resolve();
   };
 
   private get pcm_l() {
@@ -81,47 +73,47 @@ class WasmEncoder<T extends SupportedMimeTypes> {
     return this.module.HEAPU8.subarray(ptr, ptr + size);
   }
 
-  public constructor(
-    private readonly mimeType: T,
-    private readonly wasm?:
-      | string
-      | ArrayBuffer
-      | Uint8Array
-      | WebAssembly.Module
-  ) {
-    if (!WasmEncoder.paramParsers[mimeType]) {
-      throw new Error(`Unsupported mime type ${mimeType}`);
-    }
-  }
+  private constructor(
+    private readonly module: typeof Module,
+    private readonly parseParams: ParamParser<T>
+  ) {}
 
-  public async init() {
-    let wasm = this.wasm;
+  public static async create<T extends SupportedMimeTypes>(
+    mimeType: T,
+    wasm?: string | ArrayBuffer | Uint8Array | WebAssembly.Module
+  ): Promise<WasmEncoder<T>> {
+    if (!WasmEncoder.paramParsers[mimeType]) {
+      throw new Error(`Unsupported mimetype ${mimeType}`);
+    }
+
     if (wasm === undefined) {
       wasm =
         `https://unpkg.com/${name}@${version}/wasm/` +
-        WasmEncoder.paramParsers[this.mimeType].wasmFilename;
+        WasmEncoder.paramParsers[mimeType].wasmFilename;
     }
 
     if (typeof wasm === "string") {
       wasm = await compileModule(wasm);
     }
 
+    const isReady = new Deferred<typeof Module>();
+
     Module({
       wasm,
-      onReady: this.onReady,
+      onReady: isReady.resolve,
     });
-    await this.isReady.promise;
-    return this;
+    return new WasmEncoder(
+      await isReady.promise,
+      WasmEncoder.paramParsers[mimeType].parseParams
+    );
   }
 
-  public prepare(params: BaseEncoderParams & EncoderParams<T>) {
+  public configure(params: BaseEncoderParams & EncoderParams<T>) {
     if (this.ref) {
       this.module._enc_free(this.ref);
       this.ref = 0;
     }
-    const paramBuffer = WasmEncoder.paramParsers[this.mimeType].parseParams(
-      params
-    );
+    const paramBuffer = this.parseParams(params);
     const paramAlloc = this.module._malloc(paramBuffer.byteLength);
     if (!paramAlloc) {
       throw new Error("Failed to allocate parameter buffer");
@@ -168,4 +160,6 @@ class WasmEncoder<T extends SupportedMimeTypes> {
   }
 }
 
-export default WasmEncoder;
+const createEncoder = WasmEncoder.create;
+
+export { createEncoder, WasmEncoder };

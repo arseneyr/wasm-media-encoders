@@ -1,7 +1,7 @@
 import { enableFetchMocks } from "jest-fetch-mock";
 import { promises as fs } from "fs";
 import { resolve } from "path";
-import WasmEncoder from "../encoder";
+import { createEncoder, WasmEncoder } from "../encoder";
 const pkg = require("../../package.json");
 
 enableFetchMocks();
@@ -18,11 +18,10 @@ beforeAll(async () => {
   );
 });
 
-test("Unsupported mimeType", () => {
-  expect(() => {
-    //@ts-ignore
-    new WasmEncoder("video/mpeg");
-  }).toThrowError();
+test("Unsupported mimeType", async () => {
+  await expect(createEncoder("video/mpeg" as any)).rejects.toBeInstanceOf(
+    Error
+  );
 });
 
 describe("fetching from url", () => {
@@ -47,7 +46,7 @@ describe("fetching from url", () => {
   });
 
   test("fetch from unpkg", async () => {
-    await expect(new WasmEncoder("audio/mpeg").init()).resolves.toBeInstanceOf(
+    await expect(createEncoder("audio/mpeg")).resolves.toBeInstanceOf(
       WasmEncoder
     );
     expect(fetchMock.mock.calls[0][0]).toMatch("unpkg.com");
@@ -55,7 +54,7 @@ describe("fetching from url", () => {
 
   test("fetch from custom url", async () => {
     await expect(
-      new WasmEncoder("audio/mpeg", "https://example.com/mp3.wasm").init()
+      createEncoder("audio/mpeg", "https://example.com/mp3.wasm")
     ).resolves.toBeInstanceOf(WasmEncoder);
     expect(fetchMock.mock.calls[0][0]).toMatch("example.com");
   });
@@ -64,25 +63,22 @@ describe("fetching from url", () => {
     const dataUri =
       "data:application/wasm;base64," + wasm["mp3.wasm"].toString("base64");
 
-    await expect(
-      new WasmEncoder("audio/mpeg", dataUri).init()
-    ).resolves.toBeInstanceOf(WasmEncoder);
+    await expect(createEncoder("audio/mpeg", dataUri)).resolves.toBeInstanceOf(
+      WasmEncoder
+    );
     expect(fetchMock.mock.calls).toHaveLength(0);
   });
 
   test("use buffer", async () => {
     await expect(
-      new WasmEncoder("audio/mpeg", wasm["mp3.wasm"]).init()
+      createEncoder("audio/mpeg", wasm["mp3.wasm"])
     ).resolves.toBeInstanceOf(WasmEncoder);
     expect(fetchMock.mock.calls).toHaveLength(0);
   });
 
   test("use precompiled module", async () => {
     await expect(
-      new WasmEncoder(
-        "audio/mpeg",
-        await WebAssembly.compile(wasm["mp3.wasm"])
-      ).init()
+      createEncoder("audio/mpeg", await WebAssembly.compile(wasm["mp3.wasm"]))
     ).resolves.toBeInstanceOf(WasmEncoder);
     expect(fetchMock.mock.calls).toHaveLength(0);
   });
