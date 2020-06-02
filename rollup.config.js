@@ -47,7 +47,7 @@ const umdConfig = {
   },
 };
 
-const bundleConfigs = ["mp3"].map((f) => ({
+const bundleConfigs = ["index", "mp3"].map((f) => ({
   ...mainConfig,
   input: `src/bundle/${f}.ts`,
   output: {

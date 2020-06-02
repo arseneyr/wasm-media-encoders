@@ -8,7 +8,8 @@ const genPath = (...segments) => path.resolve(basePath, ...segments);
 
 const newPkg = {
   ...pkg,
-  main: "index.js",
+  main: "bundle/index.js",
+  browser: "index.js",
   scripts: undefined,
 };
 

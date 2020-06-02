@@ -27,7 +27,7 @@ type ParamParser<T extends keyof ParamMap> = ParamMap[T]["parseParams"];
 
 type EncoderParams<T extends keyof ParamMap> = Parameters<ParamParser<T>>[0];
 
-type SupportedMimeTypes = keyof ParamMap;
+export type SupportedMimeTypes = keyof ParamMap;
 
 class WasmEncoder<T extends SupportedMimeTypes> {
   private ref!: number;
