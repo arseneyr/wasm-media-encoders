@@ -4,9 +4,7 @@ const common = {
     "ts-jest": {
       tsConfig: {
         allowJs: true,
-      },
-      diagnostics: {
-        ignoreCodes: [151001],
+        esModuleInterop: true,
       },
     },
   },
