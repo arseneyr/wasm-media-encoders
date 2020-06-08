@@ -29,14 +29,6 @@ void enc_free(PCFG cfg)
     {
       lame_close(cfg->gfp);
     }
-    if (cfg->pcm_l)
-    {
-      free(cfg->pcm_l);
-    }
-    if (cfg->pcm_r)
-    {
-      free(cfg->pcm_r);
-    }
     if (cfg->mp3_buffer)
     {
       free(cfg->mp3_buffer);
@@ -46,7 +38,7 @@ void enc_free(PCFG cfg)
 }
 
 PCFG enc_init(unsigned int sample_rate,
-              unsigned int sample_count, unsigned int channel_count,
+              unsigned int channel_count,
               PPARAMS params)
 {
   PCFG cfg = NULL;
@@ -60,13 +52,11 @@ PCFG enc_init(unsigned int sample_rate,
   {
     goto Cleanup;
   }
-  cfg->pcm_l = malloc(sample_count * sizeof(*cfg->pcm_l));
-  cfg->pcm_r = malloc(sample_count * sizeof(*cfg->pcm_r));
-  cfg->mp3_buffer_size = MP3_BUFFER_SIZE(sample_count);
+  cfg->mp3_buffer_size = DEFAULT_MP3_SIZE;
   cfg->mp3_buffer =
       malloc(cfg->mp3_buffer_size);
   cfg->gfp = lame_init();
-  if (!cfg->pcm_l || !cfg->pcm_r || !cfg->mp3_buffer || !cfg->gfp)
+  if (!cfg->mp3_buffer || !cfg->gfp)
   {
     goto Cleanup;
   }

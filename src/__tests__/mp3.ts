@@ -1,11 +1,11 @@
 import { createReadStream, promises as fs } from "fs";
 import { resolve } from "path";
-import { createEncoder, WasmEncoder } from "../encoder";
+import { createEncoder, WasmMediaEncoder } from "../encoder";
 
 const wav = require("wav");
 
 let wavData!: [Float32Array, Float32Array];
-let encoder: WasmEncoder<"audio/mpeg">;
+let encoder: WasmMediaEncoder<"audio/mpeg">;
 let format: any;
 
 beforeAll(async () => {
@@ -32,10 +32,9 @@ beforeAll(async () => {
   ).pipe(reader);
 
   [encoder, wavData] = await Promise.all<typeof encoder, typeof wavData>([
-    createEncoder(
-      "audio/mpeg",
-      await fs.readFile(resolve(__dirname, "../wasm/build/mp3.wasm"))
-    ),
+    fs
+      .readFile(resolve(__dirname, "../wasm/build/mp3.wasm"))
+      .then((f) => createEncoder("audio/mpeg", f)),
     p.then((b) => {
       const pcm_l = new Float32Array(b.length / 2);
       const pcm_r = new Float32Array(b.length / 2);
@@ -56,7 +55,6 @@ test.each([
   encoder.configure({
     channels: format.channels,
     sampleRate: format.sampleRate,
-    sampleCount: wavData[0].length,
     ...params,
   });
 
@@ -78,7 +76,6 @@ test.skip("vs c lame", async () => {
   encoder.configure({
     channels: format.channels,
     sampleRate: format.sampleRate,
-    sampleCount: wavData[0].length,
     vbrQuality: 0,
   });
 
@@ -97,7 +94,6 @@ test("invalid params", () => {
     encoder.configure({
       channels: format.channels,
       sampleRate: format.sampleRate,
-      sampleCount: wavData[0].length,
       vbrQuality: 10,
     })
   ).toThrowError();
@@ -105,8 +101,18 @@ test("invalid params", () => {
     encoder.configure({
       channels: format.channels,
       sampleRate: format.sampleRate,
-      sampleCount: wavData[0].length,
-      cbrRate: 1 as any,
+      bitrate: 1 as any,
     })
   ).toThrowError();
+});
+
+test("mono encoding", async () => {
+  encoder.configure({
+    channels: 1,
+    sampleRate: format.sampleRate,
+  });
+  let outBuf = Buffer.from(encoder.encode(wavData.slice(0, 1)));
+  outBuf = Buffer.concat([outBuf, encoder.finalize()]);
+  const refFile = await fs.readFile(resolve(__dirname, "test_mp3/mono.mp3"));
+  expect(refFile.compare(outBuf)).toBe(0);
 });

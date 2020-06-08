@@ -1,7 +1,7 @@
 import { enableFetchMocks } from "jest-fetch-mock";
 import { promises as fs } from "fs";
 import { resolve } from "path";
-import { createEncoder, WasmEncoder } from "../encoder";
+import { createEncoder, WasmMediaEncoder } from "../encoder";
 const pkg = require("../../package.json");
 
 enableFetchMocks();
@@ -47,7 +47,7 @@ describe("fetching from url", () => {
 
   test("fetch from unpkg", async () => {
     await expect(createEncoder("audio/mpeg")).resolves.toBeInstanceOf(
-      WasmEncoder
+      WasmMediaEncoder
     );
     expect(fetchMock.mock.calls[0][0]).toMatch("unpkg.com");
   });
@@ -55,7 +55,7 @@ describe("fetching from url", () => {
   test("fetch from custom url", async () => {
     await expect(
       createEncoder("audio/mpeg", "https://example.com/mp3.wasm")
-    ).resolves.toBeInstanceOf(WasmEncoder);
+    ).resolves.toBeInstanceOf(WasmMediaEncoder);
     expect(fetchMock.mock.calls[0][0]).toMatch("example.com");
   });
 
@@ -64,7 +64,7 @@ describe("fetching from url", () => {
       "data:application/wasm;base64," + wasm["mp3.wasm"].toString("base64");
 
     await expect(createEncoder("audio/mpeg", dataUri)).resolves.toBeInstanceOf(
-      WasmEncoder
+      WasmMediaEncoder
     );
     expect(fetchMock.mock.calls).toHaveLength(0);
   });
@@ -72,14 +72,14 @@ describe("fetching from url", () => {
   test("use buffer", async () => {
     await expect(
       createEncoder("audio/mpeg", wasm["mp3.wasm"])
-    ).resolves.toBeInstanceOf(WasmEncoder);
+    ).resolves.toBeInstanceOf(WasmMediaEncoder);
     expect(fetchMock.mock.calls).toHaveLength(0);
   });
 
   test("use precompiled module", async () => {
     await expect(
       createEncoder("audio/mpeg", await WebAssembly.compile(wasm["mp3.wasm"]))
-    ).resolves.toBeInstanceOf(WasmEncoder);
+    ).resolves.toBeInstanceOf(WasmMediaEncoder);
     expect(fetchMock.mock.calls).toHaveLength(0);
   });
 });

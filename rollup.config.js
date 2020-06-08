@@ -42,7 +42,7 @@ const umdConfig = {
   output: {
     ...mainConfig.output,
     file: "dist/umd/encoder.min.js",
-    name: "WasmEncoder",
+    name: "WasmMediaEncoder",
     format: "umd",
   },
 };

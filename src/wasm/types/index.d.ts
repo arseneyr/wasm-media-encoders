@@ -1,12 +1,7 @@
 interface IWasmEncoder
   extends EmscriptenModule,
     EmscriptenModuleFactory<IWasmEncoder> {
-  _enc_init(
-    sample_rate: number,
-    sample_count: number,
-    channel_count: number,
-    params: number
-  ): number;
+  _enc_init(sample_rate: number, channel_count: number, params: number): number;
   _enc_encode(cfg: number, num_samples: number): number;
   _enc_flush(cfg: number): number;
   _enc_free(cfg: number): void;

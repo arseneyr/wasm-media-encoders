@@ -18,10 +18,10 @@ type Mp3CbrValues =
   | 256
   | 320;
 
-type Mp3Params = XOR<{ cbrRate?: Mp3CbrValues }, { vbrQuality?: number }>;
+type Mp3Params = XOR<{ bitrate?: Mp3CbrValues }, { vbrQuality?: number }>;
 
 function parseMp3Params(params: Mp3Params) {
-  switch (params.cbrRate) {
+  switch (params.bitrate) {
     case undefined:
     case 8:
     case 16:
@@ -51,9 +51,9 @@ function parseMp3Params(params: Mp3Params) {
   }
 
   const ret = new Int32Array(2);
-  ret[0] = params.cbrRate ?? 0;
+  ret[0] = params.bitrate ?? 0;
   new Float32Array(ret.buffer)[1] =
-    params.vbrQuality ?? (params.cbrRate !== undefined ? -1 : 4);
+    params.vbrQuality ?? (params.bitrate !== undefined ? -1 : 4);
 
   return ret;
 }

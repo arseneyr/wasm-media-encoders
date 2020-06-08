@@ -2,13 +2,13 @@
 import wasmMp3 from "../wasm/build/mp3.wasm";
 import {
   createEncoder as createEncoderBase,
-  WasmEncoder,
+  WasmMediaEncoder,
   SupportedMimeTypes,
 } from "../encoder";
 
 function createEncoder<T extends SupportedMimeTypes>(
   mimeType: T
-): Promise<WasmEncoder<T>> {
+): Promise<WasmMediaEncoder<T>> {
   switch (mimeType) {
     case "audio/mpeg":
       return createEncoderBase(mimeType, wasmMp3);
@@ -18,4 +18,4 @@ function createEncoder<T extends SupportedMimeTypes>(
   }
 }
 
-export { createEncoder, WasmEncoder };
+export { createEncoder, WasmMediaEncoder };

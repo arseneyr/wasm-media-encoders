@@ -7,7 +7,6 @@ import { name, version } from "../package.json";
 interface BaseEncoderParams {
   channels: 1 | 2;
   sampleRate: number;
-  sampleCount?: number;
 }
 
 type DiscriminateUnion<T, K extends keyof T, V extends T[K]> = T extends Record<
@@ -29,10 +28,10 @@ type EncoderParams<T extends keyof ParamMap> = Parameters<ParamParser<T>>[0];
 
 export type SupportedMimeTypes = keyof ParamMap;
 
-class WasmEncoder<T extends SupportedMimeTypes> {
+class WasmMediaEncoder<T extends SupportedMimeTypes> {
   private ref!: number;
   private channelCount!: number;
-  private sampleCount!: number;
+  private sampleCount: number = 128;
 
   private static readonly paramParsers: ParamMap = {
     [Mp3Params.mimeType]: Mp3Params,
@@ -53,10 +52,25 @@ class WasmEncoder<T extends SupportedMimeTypes> {
     );
   }
 
+  private free() {
+    if (!this.ref) {
+      return;
+    }
+    const pcm_ptr_l = this.module.HEAP32[this.ref >> 2];
+    const pcm_ptr_r = this.module.HEAP32[(this.ref + 4) >> 2];
+    pcm_ptr_l && this.module._free(pcm_ptr_l);
+    pcm_ptr_r && this.module._free(pcm_ptr_r);
+    this.module._enc_free(this.ref);
+    this.ref = 0;
+  }
+
   private realloc_pcm() {
     const realloc_one = (ptr_loc: number) => {
-      this.module._free(this.module.HEAP32[ptr_loc >> 2]);
-      const ret = this.module._malloc(this.sampleCount);
+      if (this.module.HEAP32[ptr_loc >> 2] !== 0) {
+        this.module._free(this.module.HEAP32[ptr_loc >> 2]);
+        this.module.HEAP32[ptr_loc >> 2] = 0;
+      }
+      const ret = this.module._malloc(this.sampleCount * 4);
       if (!ret) {
         throw new Error("Failed to reallocate PCM buffer");
       }
@@ -81,15 +95,15 @@ class WasmEncoder<T extends SupportedMimeTypes> {
   public static async create<T extends SupportedMimeTypes>(
     mimeType: T,
     wasm?: string | ArrayBuffer | Uint8Array | WebAssembly.Module
-  ): Promise<WasmEncoder<T>> {
-    if (!WasmEncoder.paramParsers[mimeType]) {
+  ): Promise<WasmMediaEncoder<T>> {
+    if (!WasmMediaEncoder.paramParsers[mimeType]) {
       throw new Error(`Unsupported mimetype ${mimeType}`);
     }
 
     if (wasm === undefined) {
       wasm =
         `https://unpkg.com/${name}@${version}/wasm/` +
-        WasmEncoder.paramParsers[mimeType].wasmFilename;
+        WasmMediaEncoder.paramParsers[mimeType].wasmFilename;
     }
 
     if (typeof wasm === "string") {
@@ -102,29 +116,25 @@ class WasmEncoder<T extends SupportedMimeTypes> {
       wasm,
       onReady: isReady.resolve,
     });
-    return new WasmEncoder(
+    return new WasmMediaEncoder(
       await isReady.promise,
-      WasmEncoder.paramParsers[mimeType].parseParams
+      WasmMediaEncoder.paramParsers[mimeType].parseParams
     );
   }
 
   public configure(params: BaseEncoderParams & EncoderParams<T>) {
-    if (this.ref) {
-      this.module._enc_free(this.ref);
-      this.ref = 0;
-    }
+    this.free();
     const paramBuffer = this.parseParams(params);
     const paramAlloc = this.module._malloc(paramBuffer.byteLength);
     if (!paramAlloc) {
       throw new Error("Failed to allocate parameter buffer");
     }
     this.module.HEAP32.set(paramBuffer, paramAlloc >> 2);
-    this.sampleCount = params.sampleCount || 128;
+    this.sampleCount = 128;
     this.channelCount = params.channels;
     try {
       this.ref = this.module._enc_init(
         params.sampleRate,
-        this.sampleCount,
         params.channels,
         paramAlloc
       );
@@ -134,6 +144,8 @@ class WasmEncoder<T extends SupportedMimeTypes> {
     } finally {
       this.module._free(paramAlloc);
     }
+
+    this.realloc_pcm();
   }
 
   public encode(pcm: Float32Array[]) {
@@ -142,7 +154,9 @@ class WasmEncoder<T extends SupportedMimeTypes> {
       this.realloc_pcm();
     }
     this.pcm_l.set(pcm[0]);
-    this.pcm_r.set(pcm[1]);
+    if (this.channelCount === 2) {
+      this.pcm_r.set(pcm[1]);
+    }
     const bytes_written = this.module._enc_encode(this.ref, pcm[0].length);
     if (bytes_written < 0) {
       throw new Error(`Error while encoding ${bytes_written}`);
@@ -160,6 +174,6 @@ class WasmEncoder<T extends SupportedMimeTypes> {
   }
 }
 
-const createEncoder = WasmEncoder.create;
+const createEncoder = WasmMediaEncoder.create;
 
-export { createEncoder, WasmEncoder };
+export { createEncoder, WasmMediaEncoder };
