@@ -49,8 +49,8 @@ beforeAll(async () => {
 test.each([
   { vbrQuality: 0 },
   { vbrQuality: 5 },
-  { cbrRate: 8 as const },
-  { cbrRate: 128 as const },
+  { bitrate: 8 as const },
+  { bitrate: 128 as const },
 ])("mp3 %p", async (params) => {
   encoder.configure({
     channels: format.channels,
@@ -66,9 +66,10 @@ test.each([
       "test_mp3",
       (params.vbrQuality !== undefined
         ? `v_${params.vbrQuality}`
-        : `c_${params.cbrRate}`) + ".mp3"
+        : `c_${params.bitrate}`) + ".mp3"
     )
   );
+
   expect(refFile.compare(outBuf)).toBe(0);
 });
 
@@ -76,17 +77,15 @@ test.skip("vs c lame", async () => {
   encoder.configure({
     channels: format.channels,
     sampleRate: format.sampleRate,
-    vbrQuality: 0,
+    bitrate: 128,
   });
 
   let outBuf = Buffer.from(encoder.encode(wavData));
   outBuf = Buffer.concat([outBuf, encoder.finalize()]);
   const refFile = await fs.readFile(resolve(__dirname, "testcase.mp3"));
   await fs.writeFile(resolve(__dirname, "gen.mp3"), outBuf);
-  expect(
-    refFile.reduce((a, b, i) => a + (b !== outBuf[i] ? 1 : 0), 0)
-  ).toBeLessThan(5);
-  await fs.writeFile(resolve(__dirname, "test_mp3", "v_0.mp3"), outBuf);
+  expect(refFile.reduce((a, b, i) => a + (b !== outBuf[i] ? 1 : 0), 0)).toBe(0);
+  await fs.writeFile(resolve(__dirname, "test_mp3", "c_128.mp3"), outBuf);
 });
 
 test("invalid params", () => {

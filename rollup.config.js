@@ -8,56 +8,58 @@ import minifyPrivates from "ts-transformer-minify-privates";
 const isDev = process.env.NODE_ENV === "development";
 const isProd = process.env.NODE_ENV === "production";
 
+const outputPlugins = [
+  ...(isProd
+    ? [
+        terser({
+          mangle: {
+            properties: {
+              regex: /_private_/,
+            },
+          },
+        }),
+      ]
+    : []),
+];
+
+const plugins = [
+  json(),
+  typescript({
+    transformers: ({ program }) => ({ before: [minifyPrivates(program)] }),
+  }),
+  babel({ babelHelpers: "bundled" }),
+];
+
 const mainConfig = {
-  input: "src/encoder.ts",
+  input: "src/index.ts",
   output: {
     file: "dist/index.js",
     format: "cjs",
-    plugins: [
-      ...(isProd
-        ? [
-            terser({
-              mangle: {
-                properties: {
-                  regex: /_private_/,
-                },
-              },
-            }),
-          ]
-        : []),
-    ],
+    plugins: outputPlugins,
   },
 
-  plugins: [
-    json(),
-    typescript({
-      transformers: ({ program }) => ({ before: [minifyPrivates(program)] }),
-    }),
-    babel({ babelHelpers: "bundled" }),
-  ],
+  plugins: [url({ include: "**/*.wasm", limit: 1024 * 1024 }), ...plugins],
+};
+
+const encoderConfig = {
+  input: "src/encoder.ts",
+  output: {
+    file: "dist/encoder.js",
+    format: "cjs",
+    plugins: outputPlugins,
+  },
+
+  plugins,
 };
 
 const umdConfig = {
-  ...mainConfig,
+  ...encoderConfig,
   output: {
-    ...mainConfig.output,
     file: "dist/umd/encoder.min.js",
     name: "WasmMediaEncoder",
     format: "umd",
+    plugins: outputPlugins,
   },
 };
 
-const bundleConfigs = ["index", "mp3"].map((f) => ({
-  ...mainConfig,
-  input: `src/bundle/${f}.ts`,
-  output: {
-    ...mainConfig.output,
-    file: `dist/bundle/${f}.js`,
-  },
-  plugins: [
-    url({ include: "**/*.wasm", limit: 1024 * 1024 }),
-    ...mainConfig.plugins,
-  ],
-}));
-
-export default [mainConfig, umdConfig, ...bundleConfigs];
+export default [mainConfig, encoderConfig, umdConfig];
