@@ -2,20 +2,25 @@
   "name": "wasm-media-encoders",
   "version": "0.4.0",
   "main": "dist/index.js",
+  "module": "dist/es/index.js",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/arseneyr/wasm-encoders"
   },
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "wasm"
+  ],
   "scripts": {
-    "build:encoders": "\"docker run --rm -it -e NODE_ENV -v %cd%:/src -v emsdk_cache:/emsdk_portable/.data -w /src/src/wasm trzeci/emscripten:1.39.17-upstream make\" && node src/wasm/postprocess",
+    "build:encoders": "rimraf src/wasm/build/* wasm && docker run --rm -it -e NODE_ENV -v %cd%:/src -v emsdk_cache:/emsdk_portable/.data -w /src/src/wasm trzeci/emscripten:1.39.17-upstream make && node scripts/postprocess_wasm",
     "clean:encoders": "docker run --rm -it -v %cd%:/src -w /src/src/wasm trzeci/emscripten:1.39.10-upstream make clean",
-    "build:js": "rimraf dist/**/* && rollup -c && copyfiles -f src/wasm/build/*.wasm dist/wasm",
+    "build:js": "rimraf dist/**/* && rollup -c",
     "build": "cross-env-shell NODE_ENV=development \"npm run build:encoders && npm run build:js\"",
     "build:prod": "cross-env-shell NODE_ENV=production \"npm run build:encoders && npm run build:js\"",
     "clean": "rimraf dist src/wasm/dist",
     "test": "jest",
-    "prepack": "node scripts/prepack",
     "prepare": "npm run clean && npm run build:prod"
   },
   "dependencies": {

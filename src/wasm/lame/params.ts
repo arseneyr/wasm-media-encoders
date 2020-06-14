@@ -62,6 +62,5 @@ function parseMp3Params(params: Mp3Params) {
 export const Mp3Params = {
   mimeType: "audio/mpeg" as const,
   parseParams: parseMp3Params,
-  wasmFilename: "mp3.wasm",
   module: Mp3Module,
 };

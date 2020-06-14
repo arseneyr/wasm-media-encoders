@@ -1,6 +1,5 @@
 #include <vorbis/vorbisenc.h>
 #include <stdlib.h>
-#include <time.h>
 #include <string.h>
 #include <stdbool.h>
 
@@ -19,6 +18,8 @@ typedef struct _CFG
 typedef struct _PARAMS
 {
   float vbr_quality;
+  int serialno;
+
 } PARAMS, *PPARAMS;
 
 int write_blocks(PCFG cfg, unsigned int previous_offset);
@@ -73,8 +74,7 @@ PCFG enc_init(unsigned int sample_rate,
     goto Cleanup;
   }
 
-  srand(time(NULL));
-  ogg_stream_init(&cfg->os, rand());
+  ogg_stream_init(&cfg->os, params->serialno);
   vorbis_analysis_init(&cfg->vd, &cfg->vi);
   vorbis_block_init(&cfg->vd, &cfg->vb);
 

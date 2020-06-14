@@ -1,7 +1,6 @@
 import { compileModule } from "./compile";
 import { Mp3Params } from "./wasm/lame/params";
 import { OggParams } from "./wasm/vorbis/params";
-import { name, version } from "../package.json";
 import { IWasmEncoder } from "./wasm/types/wasmEncoder";
 
 interface BaseEncoderParams {
@@ -71,16 +70,13 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
 
   public static async create<T extends SupportedMimeTypes>(
     mimeType: T,
-    wasm?: string | ArrayBuffer | Uint8Array | WebAssembly.Module
+    wasm: string | ArrayBuffer | Uint8Array | WebAssembly.Module
   ): Promise<WasmMediaEncoder<T>> {
     if (!WasmMediaEncoder.encoderConfigs[mimeType]) {
       throw new Error(`Unsupported mimetype ${mimeType}`);
     }
-
-    if (wasm === undefined) {
-      wasm =
-        `https://unpkg.com/${name}@${version}/wasm/` +
-        WasmMediaEncoder.encoderConfigs[mimeType].wasmFilename;
+    if (!wasm) {
+      throw new Error("No WASM specified");
     }
 
     if (typeof wasm === "string") {

@@ -23,7 +23,6 @@ const outputPlugins = [
 ];
 
 const plugins = [
-  json(),
   typescript({
     transformers: ({ program }) => ({ before: [minifyPrivates(program)] }),
   }),
@@ -41,25 +40,24 @@ const mainConfig = {
   plugins: [url({ include: "**/*.wasm", limit: 1024 * 1024 }), ...plugins],
 };
 
-const encoderConfig = {
-  input: "src/encoder.ts",
+const esConfig = {
+  ...mainConfig,
   output: {
-    file: "dist/encoder.js",
-    format: "cjs",
+    format: "es",
+    file: "dist/es/index.js",
     plugins: outputPlugins,
   },
-
-  plugins,
 };
 
 const umdConfig = {
-  ...encoderConfig,
+  input: "src/umd.ts",
   output: {
-    file: "dist/umd/encoder.min.js",
+    file: "dist/umd/WasmMediaEncoder.min.js",
     name: "WasmMediaEncoder",
     format: "umd",
     plugins: outputPlugins,
   },
+  plugins: [json(), ...plugins],
 };
 
-export default [mainConfig, encoderConfig, umdConfig];
+export default [mainConfig, esConfig, umdConfig];

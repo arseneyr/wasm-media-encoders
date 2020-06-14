@@ -2,7 +2,6 @@ import { enableFetchMocks } from "jest-fetch-mock";
 import { promises as fs } from "fs";
 import { resolve } from "path";
 import { createEncoder, WasmMediaEncoder } from "../encoder";
-const pkg = require("../../package.json");
 
 enableFetchMocks();
 
@@ -10,7 +9,7 @@ const wasm: { [filename: string]: Buffer } = {};
 
 beforeAll(async () => {
   await Promise.all(
-    ["mp3.wasm"].map(async (filename) => {
+    ["mp3.wasm", "ogg.wasm"].map(async (filename) => {
       wasm[filename] = await fs.readFile(
         resolve(__dirname, "../wasm/build", filename)
       );
@@ -19,7 +18,7 @@ beforeAll(async () => {
 });
 
 test("Unsupported mimeType", async () => {
-  await expect(createEncoder("video/mpeg" as any)).rejects.toBeInstanceOf(
+  await expect(createEncoder("video/mpeg" as any, "")).rejects.toBeInstanceOf(
     Error
   );
 });
@@ -29,10 +28,7 @@ describe("fetching from url", () => {
     fetchMock.mockResponse(async (req) => {
       const [filename, data] =
         Object.entries(wasm).find(
-          ([filename]) =>
-            req.url ===
-              `https://unpkg.com/${pkg.name}@${pkg.version}/wasm/` + filename ||
-            req.url === "https://example.com/" + filename
+          ([filename]) => req.url === "https://example.com/" + filename
         ) ?? [];
       if (!filename) {
         throw new Error("Unknown request");
@@ -43,13 +39,6 @@ describe("fetching from url", () => {
 
   afterEach(() => {
     fetchMock.resetMocks();
-  });
-
-  test("fetch from unpkg", async () => {
-    await expect(createEncoder("audio/mpeg")).resolves.toBeInstanceOf(
-      WasmMediaEncoder
-    );
-    expect(fetchMock.mock.calls[0][0]).toMatch("unpkg.com");
   });
 
   test("fetch from custom url", async () => {

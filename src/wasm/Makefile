@@ -1,7 +1,7 @@
 all:  lame.wasm vorbis.wasm
 
 ifeq ($(NODE_ENV),production)
-  emcc_flags = -Oz -flto
+  emcc_flags = -Oz -flto --closure 1 
 else
   emcc_flags = -O0 -g
 endif
@@ -28,7 +28,6 @@ lame.wasm: lame/lame-src/dist/lib/libmp3lame.a lame/lame_enc.c
 	@mkdir -p build
 	emcc $^ \
 	  -DNDEBUG $(emcc_flags) -Ilame/lame-src/dist/include \
-		--closure 1 \
 		--post-js post-js.js \
 		-s MALLOC=emmalloc \
 		-s MINIMAL_RUNTIME \
@@ -69,7 +68,6 @@ vorbis.wasm: \
 	emcc $^ \
 	  $(emcc_flags) -Ivorbis/vorbis-src/dist/include -Ivorbis/ogg-src/dist/include \
 		--post-js post-js.js \
-		--closure 1 \
 		-s MALLOC=emmalloc \
 		-s MINIMAL_RUNTIME \
 		-s MODULARIZE \
