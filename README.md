@@ -128,7 +128,7 @@ The first two named exports use inline base-64 encoded WASM binaries (or `fetch(
 | Parameter  | Type                                                     | Description                                                                                                                                                                                                                                                                                             |
 | ---------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `mimeType` | `String`                                                 | The MIME type of the encoder to create. Supported values are `'audio/mpeg'` (MP3) or `'audio/ogg'` (Ogg Vorbis)                                                                                                                                                                                         |
-| `wasm`     | `String | ArrayBuffer | Uint8Array | WebAssembly.Module` | A URL, [base64 data URL](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs), buffer, or compiled `WebAssembly.Module` representing the WASM binary for the specific `mimeType`. The WASM binaries are included in the package under `wasm-media-encoders/wasm/(mp3|ogg).wasm`. |
+| `wasm`     | `String \| ArrayBuffer \| Uint8Array \| WebAssembly.Module` | A URL, [base64 data URL](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs), buffer, or compiled `WebAssembly.Module` representing the WASM binary for the specific `mimeType`. The WASM binaries are included in the package under `wasm-media-encoders/wasm/(mp3|ogg).wasm`. |
 
 ## `WasmMediaEncoder`
 
@@ -149,14 +149,14 @@ The options object is a union of common properties and encoder-specific ones. Al
 `vbrQuality` and `bitrate` are mutually exclusive.
 | Property | Type | Default | Description |
 |-|-|-|-|
-|`vbrQuality`| `Number | undefined` | `4.0` | Variable Bitrate (VBR) quality for the LAME encoder, from 0.0 (best quality) to 9.999 (worst quality). See [here](https://wiki.hydrogenaud.io/index.php?title=LAME#Recommended_settings_details) for details.|
-|`bitrate`| `Number | undefined` | | Constant bitrate in kbit/s. Valid bitrates are 8, 16, 24, 32, 40, 48, 64, 80, 96, 112, 128, 160, 192, 224, 256, or 320.|
+|`vbrQuality`| `Number \| undefined` | `4.0` | Variable Bitrate (VBR) quality for the LAME encoder, from 0.0 (best quality) to 9.999 (worst quality). See [here](https://wiki.hydrogenaud.io/index.php?title=LAME#Recommended_settings_details) for details.|
+|`bitrate`| `Number \| undefined` | | Constant bitrate in kbit/s. Valid bitrates are 8, 16, 24, 32, 40, 48, 64, 80, 96, 112, 128, 160, 192, 224, 256, or 320.|
 
 **Options for MIME type `audio/ogg` (Ogg Vorbis):**
 
 | Property     | Type                 | Default | Description                                                                                                                                                                                                                                    |
 | ------------ | -------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `vbrQuality` | `Number | undefined` | `3.0`   | Variable Bitrate (VBR) quality for the Vorbis encoder, from -1.0 (worst quality) to 10.0 (best quality). See [here](https://wiki.hydrogenaud.io/index.php?title=Recommended_Ogg_Vorbis#Recommended_Encoder_Settings) for approximate bitrates. |
+| `vbrQuality` | `Number \| undefined` | `3.0`   | Variable Bitrate (VBR) quality for the Vorbis encoder, from -1.0 (worst quality) to 10.0 (best quality). See [here](https://wiki.hydrogenaud.io/index.php?title=Recommended_Ogg_Vorbis#Recommended_Encoder_Settings) for approximate bitrates. |
 
 ### **`encode(samples): Uint8Array`**
 
