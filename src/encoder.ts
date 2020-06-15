@@ -62,6 +62,7 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
   }
 
   private constructor(
+    public readonly mimeType: MimeType,
     private readonly module: IWasmEncoder,
     private readonly parseParams: (
       params: EncoderParams<MimeType>
@@ -83,6 +84,7 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
       wasm = await compileModule(wasm);
     }
     return new WasmMediaEncoder(
+      mimeType,
       await WasmMediaEncoder.encoderConfigs[mimeType].module({ wasm }),
       WasmMediaEncoder.encoderConfigs[mimeType].parseParams
     );
