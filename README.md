@@ -121,7 +121,7 @@ createMp3Encoder().then((encoder) => {
 
 ### **`createOggEncoder(): Promise<WasmMediaEncoder>`**
 
-### **`createEncoder(mimeType, wasm: Promise<WasmMediaEncoder>`**
+### **`createEncoder(mimeType, wasm): Promise<WasmMediaEncoder>`**
 
 The first two named exports use inline base-64 encoded WASM binaries (or `fetch()` from unpkg.com in the case of UMD). Tree-shaking on webpack should prevent unused encoders from being included in the final bundle.
 
