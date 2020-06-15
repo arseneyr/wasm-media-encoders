@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/arseneyr/wasm-encoders"
+    "url": "https://github.com/arseneyr/wasm-media-encoders"
   },
   "sideEffects": false,
   "files": [
