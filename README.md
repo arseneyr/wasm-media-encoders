@@ -77,6 +77,7 @@ createMp3Encoder().then((encoder) => {
 
   let outBuffer = new Uint8Array(1024 * 1024);
   let offset = 0;
+  let moreData = true;
 
   while (true) {
     const mp3Data = moreData
@@ -101,6 +102,8 @@ createMp3Encoder().then((encoder) => {
     if (!moreData) {
       break;
     }
+
+    moreData = false;
   }
 
   return new Uint8Array(outBuffer.buffer, 0, offset);
@@ -125,9 +128,9 @@ createMp3Encoder().then((encoder) => {
 
 The first two named exports use inline base-64 encoded WASM binaries (or `fetch()` from unpkg.com in the case of UMD). Tree-shaking on webpack should prevent unused encoders from being included in the final bundle.
 
-| Parameter  | Type                                                     | Description                                                                                                                                                                                                                                                                                             |
-| ---------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `mimeType` | `String`                                                 | The MIME type of the encoder to create. Supported values are `'audio/mpeg'` (MP3) or `'audio/ogg'` (Ogg Vorbis)                                                                                                                                                                                         |
+| Parameter  | Type                                                        | Description                                                                                                                                                                                                                                                                                              |
+| ---------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mimeType` | `String`                                                    | The MIME type of the encoder to create. Supported values are `'audio/mpeg'` (MP3) or `'audio/ogg'` (Ogg Vorbis)                                                                                                                                                                                          |
 | `wasm`     | `String \| ArrayBuffer \| Uint8Array \| WebAssembly.Module` | A URL, [base64 data URL](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs), buffer, or compiled `WebAssembly.Module` representing the WASM binary for the specific `mimeType`. The WASM binaries are included in the package under `wasm-media-encoders/wasm/(mp3\|ogg).wasm`. |
 
 ## `WasmMediaEncoder`
@@ -154,13 +157,13 @@ The options object is a union of common properties and encoder-specific ones. Al
 
 **Options for MIME type `audio/ogg` (Ogg Vorbis):**
 
-| Property     | Type                 | Default | Description                                                                                                                                                                                                                                    |
-| ------------ | -------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Property     | Type                  | Default | Description                                                                                                                                                                                                                                    |
+| ------------ | --------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `vbrQuality` | `Number \| undefined` | `3.0`   | Variable Bitrate (VBR) quality for the Vorbis encoder, from -1.0 (worst quality) to 10.0 (best quality). See [here](https://wiki.hydrogenaud.io/index.php?title=Recommended_Ogg_Vorbis#Recommended_Encoder_Settings) for approximate bitrates. |
 
 ### **`encode(samples): Uint8Array`**
 
-Encodes PCM samples and returns a `Uint8Array`. May return a `Uint8Array` of length zero. **The returned `Uint8Array` is owned by the encoder and MUST be copied before any other encoder methods are called.**
+Encodes PCM samples and returns a `Uint8Array`. You may call this method repeatedly to add more samples (e.g. if streaming in PCM data). May return a `Uint8Array` of length zero. **The returned `Uint8Array` is owned by the encoder and MUST be copied before any other encoder methods are called.**
 | Parameter | Type | Description |
 | - | - | - |
 |`samples`| `Float32Array[]` | A `channels`-length array of `Float32Array` representing the PCM data to encode. Each sample must be in the range of `-1.0` to `1.0` |
