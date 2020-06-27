@@ -32,7 +32,7 @@ createMp3Encoder().then((encoder) => {
 With a `<script>` tag:
 
 ```html
-<script src="https://unpkg.com/wasm-media-encoders/umd/WasmMediaEncoder.min.js"></script>
+<script src="https://unpkg.com/wasm-media-encoders/dist/umd/WasmMediaEncoder.min.js"></script>
 <script>
   // The UMD package will fetch() the WASM binaries from
   // unpkg.com by default to reduce size
