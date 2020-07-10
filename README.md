@@ -90,8 +90,8 @@ createMp3Encoder().then((encoder) => {
 
     /* mp3Data is a Uint8Array that is still owned by the encoder and MUST be copied */
 
-    while (mp3Data.length + offset > outBuffer.length) {
-      const newBuffer = new Uint8Array(outBuffer.length * 2);
+    if (mp3Data.length + offset > outBuffer.length) {
+      const newBuffer = new Uint8Array(mp3Data.length + offset);
       newBuffer.set(outBuffer);
       outBuffer = newBuffer;
     }
