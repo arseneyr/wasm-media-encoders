@@ -19,7 +19,7 @@
     "build:js": "rimraf dist/**/* && rollup -c",
     "build": "cross-env-shell NODE_ENV=development \"npm run build:encoders && npm run build:js\"",
     "build:prod": "cross-env-shell NODE_ENV=production \"npm run build:encoders && npm run build:js\"",
-    "clean": "rimraf dist src/wasm/dist",
+    "clean": "rimraf dist src/wasm/dist wasm",
     "test": "jest",
     "prepare": "npm run clean && npm run build:prod"
   },

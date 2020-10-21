@@ -1,4 +1,10 @@
 {
   "clang-format.executable": "${workspaceRoot}/node_modules/.bin/clang-format",
-  "typescript.tsdk": "node_modules\\typescript\\lib"
+  "typescript.tsdk": ".yarn/sdks/typescript/lib",
+  "jest.pathToJest": "yarn jest",
+  "search.exclude": {
+    "**/.yarn": true,
+    "**/.pnp.*": true
+  },
+  "typescript.enablePromptUseWorkspaceTsdk": true
 }

@@ -1,9 +1,12 @@
 [submodule "src/wasm/lame/lame-src"]
 	path = src/wasm/lame/lame-src
 	url = https://github.com/arseneyr/lame.git
+	ignore = dirty
 [submodule "src/wasm/vorbis/ogg-src"]
 	path = src/wasm/vorbis/ogg-src
 	url = https://github.com/xiph/ogg.git
+	ignore = dirty
 [submodule "src/wasm/vorbis/vorbis-src"]
 	path = src/wasm/vorbis/vorbis-src
 	url = https://github.com/xiph/vorbis.git
+	ignore = dirty
