@@ -1,6 +1,6 @@
 [submodule "src/wasm/lame/lame-src"]
 	path = src/wasm/lame/lame-src
-	url = https://github.com/arseneyr/lame
+	url = https://github.com/arseneyr/lame.git
 [submodule "src/wasm/vorbis/ogg-src"]
 	path = src/wasm/vorbis/ogg-src
 	url = https://github.com/xiph/ogg.git
