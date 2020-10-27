@@ -2,7 +2,7 @@
   "name": "wasm-media-encoders",
   "version": "0.5.1",
   "main": "dist/index.js",
-  "module": "dist/es/index.mjs",
+  "module": "dist/es/index.js",
   "browser": "dist/browser/index.js",
   "license": "MIT",
   "repository": {
