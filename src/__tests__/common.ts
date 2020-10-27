@@ -64,4 +64,15 @@ describe.each([
       expect(fetchMock.mock.calls).toHaveLength(0);
     });
   });
+
+  test("Buffer reallocation", async () => {
+    const encoder = await createEncoder(mimeType, wasm);
+    expect(encoder).toBeInstanceOf(WasmMediaEncoder);
+    encoder.configure({ sampleRate: 48000, channels: 1 });
+
+    // Emscripten initial memory size is 256 pages (64KiB each)
+    expect(encoder.encode([new Float32Array(16 * 1024 * 256)])).toBeInstanceOf(
+      Uint8Array
+    );
+  });
 });
