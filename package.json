@@ -2,7 +2,8 @@
   "name": "wasm-media-encoders",
   "version": "0.5.1",
   "main": "dist/index.js",
-  "module": "dist/es/index.js",
+  "module": "dist/es/index.mjs",
+  "browser": "dist/browser/index.js",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -14,12 +15,12 @@
     "wasm"
   ],
   "scripts": {
-    "build:encoders": "rimraf src/wasm/build/* wasm && docker run --rm -it -e NODE_ENV -v %cd%:/src -v emsdk_cache:/emsdk_portable/.data -w /src/src/wasm trzeci/emscripten:1.39.17-upstream make && node scripts/postprocess_wasm",
-    "clean:encoders": "docker run --rm -it -v %cd%:/src -w /src/src/wasm trzeci/emscripten:1.39.10-upstream make clean",
-    "build:js": "rimraf dist/**/* && rollup -c",
+    "build:encoders": "rimraf \"src/wasm/build/* wasm\" && docker run --rm -it -e NODE_ENV -v $(pwd):/src -v emsdk_cache:/emsdk_portable/.data -w /src/src/wasm trzeci/emscripten:1.39.17-upstream make && node scripts/postprocess_wasm",
+    "clean:encoders": "docker run --rm -it -v $(pwd):/src -w /src/src/wasm trzeci/emscripten:1.39.17-upstream make clean && docker volume rm emsdk_cache",
+    "build:js": "rimraf \"dist/**/*\" && rollup -c",
     "build": "cross-env-shell NODE_ENV=development \"npm run build:encoders && npm run build:js\"",
-    "build:prod": "cross-env-shell NODE_ENV=production \"npm run build:encoders && npm run build:js\"",
-    "clean": "rimraf dist src/wasm/dist wasm",
+    "build:prod": "cross-env-shell NODE_ENV=production \"yarn build:encoders && yarn build:js\"",
+    "clean": "rimraf \"dist src/wasm/dist wasm\" && yarn clean:encoders",
     "test": "jest",
     "prepare": "npm run clean && npm run build:prod"
   },
@@ -31,6 +32,7 @@
     "@babel/preset-env": "^7.10.1",
     "@rollup/plugin-babel": "^5.0.2",
     "@rollup/plugin-json": "^4.0.3",
+    "@rollup/plugin-replace": "^2.3.3",
     "@rollup/plugin-url": "^5.0.0",
     "@types/jest": "^25.2.3",
     "copyfiles": "^2.3.0",

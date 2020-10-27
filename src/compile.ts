@@ -1,6 +1,7 @@
 function intArrayFromBase64(s: string) {
   try {
-    if (Buffer) {
+    //@ts-ignore
+    if (__maybeNode__ && Buffer) {
       return Buffer.from(s, "base64");
     }
     var decoded = atob(s);

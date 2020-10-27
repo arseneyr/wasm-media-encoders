@@ -3,6 +3,7 @@ import { terser } from "rollup-plugin-terser";
 import json from "@rollup/plugin-json";
 import babel from "@rollup/plugin-babel";
 import url from "@rollup/plugin-url";
+import replace from "@rollup/plugin-replace";
 import minifyPrivates from "ts-transformer-minify-privates";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -22,7 +23,10 @@ const outputPlugins = [
     : []),
 ];
 
-const plugins = [
+const plugins = (maybeNode) => [
+  replace({ __maybeNode__: maybeNode }),
+  url({ include: "**/*.wasm", limit: 1024 * 1024 * 8 }),
+  json(),
   typescript({
     transformers: ({ program }) => ({ before: [minifyPrivates(program)] }),
   }),
@@ -37,16 +41,27 @@ const mainConfig = {
     plugins: outputPlugins,
   },
 
-  plugins: [url({ include: "**/*.wasm", limit: 1024 * 1024 }), ...plugins],
+  plugins: plugins(true),
 };
 
 const esConfig = {
   ...mainConfig,
   output: {
     format: "es",
-    file: "dist/es/index.js",
+    file: "dist/es/index.mjs",
     plugins: outputPlugins,
   },
+};
+
+const webpackConfig = {
+  ...esConfig,
+  output: {
+    format: "es",
+    file: "dist/browser/index.js",
+    plugins: outputPlugins,
+    sourcemap: true,
+  },
+  plugins: plugins(false),
 };
 
 const umdConfig = {
@@ -57,7 +72,7 @@ const umdConfig = {
     format: "umd",
     plugins: outputPlugins,
   },
-  plugins: [json(), ...plugins],
+  plugins: plugins(true),
 };
 
-export default [mainConfig, esConfig, umdConfig];
+export default [mainConfig, esConfig, webpackConfig, umdConfig];
