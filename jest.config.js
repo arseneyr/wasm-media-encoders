@@ -12,7 +12,17 @@ const common = {
 
 module.exports = {
   projects: [
-    { ...common, displayName: "browser", testEnvironment: "jsdom" },
-    { ...common, displayName: "node", testEnvironment: "node" },
+    {
+      ...common,
+      displayName: "browser",
+      testEnvironment: "jsdom",
+      globals: { ...common.globals, __maybeNode__: false },
+    },
+    {
+      ...common,
+      displayName: "node",
+      testEnvironment: "node",
+      globals: { ...common.globals, __maybeNode__: true },
+    },
   ],
 };
