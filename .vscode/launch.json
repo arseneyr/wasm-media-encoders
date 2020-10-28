@@ -8,14 +8,32 @@
       "name": "Debug Jest Tests",
       "type": "node",
       "request": "launch",
+      "runtimeExecutable": "yarn",
       "runtimeArgs": [
+        "run",
         "--inspect-brk",
-        "${workspaceRoot}/node_modules/jest/bin/jest.js",
+        "jest",
         "--runInBand"
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "port": 9229
-    }
+    }, 
+   {
+     "name": "Debug current file",
+     "request": "launch",
+     "runtimeArgs": [
+       "-r",
+       "${workspaceFolder}/.pnp.js",
+       "-r",
+       "ts-node/register",
+       "--inspect-brk",
+       "${file}"
+     ],
+     "skipFiles": [
+       "<node_internals>/**"
+     ],
+     "type": "node"
+   } 
   ]
 }

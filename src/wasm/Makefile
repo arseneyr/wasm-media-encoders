@@ -28,7 +28,7 @@ lame.wasm: lame/lame-src/dist/lib/libmp3lame.a lame/lame_enc.c
 	@mkdir -p build
 	emcc $^ \
 	  -DNDEBUG $(emcc_flags) -Ilame/lame-src/dist/include \
-		--post-js post-js.js \
+		--js-transform "node -r ../../.pnp.js -r ts-node/register ../../scripts/process_wasm.ts" \
 		-s MALLOC=emmalloc \
 		-s MINIMAL_RUNTIME \
 		-s MODULARIZE \
@@ -67,7 +67,7 @@ vorbis.wasm: \
 	vorbis/vorbis_enc.c
 	emcc $^ \
 	  $(emcc_flags) -Ivorbis/vorbis-src/dist/include -Ivorbis/ogg-src/dist/include \
-		--post-js post-js.js \
+		--js-transform "node -r ../../.pnp.js -r ts-node/register ../../scripts/process_wasm.ts" \
 		-s MALLOC=emmalloc \
 		-s MINIMAL_RUNTIME \
 		-s MODULARIZE \

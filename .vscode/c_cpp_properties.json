@@ -1,18 +1,31 @@
 {
-  "configurations": [
-    {
-      "name": "Win32",
-      "includePath": [
-        "${workspaceFolder}/src/wasm/lame/lame-src/dist/include",
-        "${workspaceFolder}/src/wasm/vorbis/ogg-src/dist/include",
-        "${workspaceFolder}/src/wasm/vorbis/vorbis-src/dist/include"
-      ],
-      "windowsSdkVersion": "10.0.18362.0",
-      "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.24.28314/bin/Hostx64/x64/cl.exe",
-      "cStandard": "c11",
-      "cppStandard": "c++17",
-      "intelliSenseMode": "msvc-x64"
-    }
-  ],
-  "version": 4
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/src/wasm/lame/lame-src/dist/include",
+                "${workspaceFolder}/src/wasm/vorbis/ogg-src/dist/include",
+                "${workspaceFolder}/src/wasm/vorbis/vorbis-src/dist/include"
+            ],
+            "windowsSdkVersion": "10.0.18362.0",
+            "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.24.28314/bin/Hostx64/x64/cl.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "msvc-x64"
+        },
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/src/wasm/lame/lame-src/dist/include",
+                "${workspaceFolder}/src/wasm/vorbis/ogg-src/dist/include",
+                "${workspaceFolder}/src/wasm/vorbis/vorbis-src/dist/include"
+            ],
+            "defines": [],
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc"
+        }
+    ],
+    "version": 4
 }

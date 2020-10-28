@@ -48,7 +48,7 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
       pcm_ptr_ptr >> 2,
       (pcm_ptr_ptr >> 2) + 2
     );
-    return [...Array(this.channelCount).keys()].map((i) =>
+    return Array.from({ length: this.channelCount }, (_, i) =>
       this.module.HEAPF32.subarray(
         pcm_ptrs[i] >> 2,
         (pcm_ptrs[i] >> 2) + num_samples
