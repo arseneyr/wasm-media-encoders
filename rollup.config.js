@@ -48,7 +48,7 @@ const esConfig = {
   ...mainConfig,
   output: {
     format: "es",
-    file: "dist/es/index.mjs",
+    file: "dist/es/index.js",
     plugins: outputPlugins,
   },
 };
