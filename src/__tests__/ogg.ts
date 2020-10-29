@@ -56,11 +56,7 @@ test.each([{ vbrQuality: 3 }])("ogg %p", async (params) => {
 
   let outBuf = Buffer.from(encoder.encode(wavData));
   outBuf = Buffer.concat([outBuf, encoder.finalize()]);
-  const refFile = await fs.readFile(
-    resolve(__dirname, "test_refs", `v_${params.vbrQuality}.ogg`)
-  );
-
-  expect(refFile.compare(outBuf)).toBe(0);
+  expect(outBuf).toMatchSnapshot();
 });
 
 test.skip("vs c vorbis", async () => {
@@ -86,13 +82,13 @@ test("invalid params", () => {
   ).toThrowError();
 });
 
-test.skip("mono encoding", async () => {
+test("mono encoding", async () => {
   encoder.configure({
     channels: 1,
     sampleRate: format.sampleRate,
+    oggSerialNo: 0,
   });
   let outBuf = Buffer.from(encoder.encode(wavData.slice(0, 1)));
   outBuf = Buffer.concat([outBuf, encoder.finalize()]);
-  const refFile = await fs.readFile(resolve(__dirname, "test_mp3/mono.mp3"));
-  expect(refFile.compare(outBuf)).toBe(0);
+  expect(outBuf).toMatchSnapshot();
 });

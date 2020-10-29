@@ -60,17 +60,7 @@ test.each([
 
   let outBuf = Buffer.from(encoder.encode(wavData));
   outBuf = Buffer.concat([outBuf, encoder.finalize()]);
-  const refFile = await fs.readFile(
-    resolve(
-      __dirname,
-      "test_refs",
-      (params.vbrQuality !== undefined
-        ? `v_${params.vbrQuality}`
-        : `c_${params.bitrate}`) + ".mp3"
-    )
-  );
-
-  expect(refFile.compare(outBuf)).toBe(0);
+  expect(outBuf).toMatchSnapshot();
 });
 
 test.skip("vs c lame", async () => {
@@ -112,6 +102,5 @@ test("mono encoding", async () => {
   });
   let outBuf = Buffer.from(encoder.encode(wavData.slice(0, 1)));
   outBuf = Buffer.concat([outBuf, encoder.finalize()]);
-  const refFile = await fs.readFile(resolve(__dirname, "test_refs/mono.mp3"));
-  expect(refFile.compare(outBuf)).toBe(0);
+  expect(outBuf).toMatchSnapshot();
 });
