@@ -2833,18 +2833,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dts-bundle-generator@npm:^4.3.0":
-  version: 4.3.0
-  resolution: "dts-bundle-generator@npm:4.3.0"
-  dependencies:
-    typescript: ">=2.6.1"
-    yargs: ^15.3.1
-  bin:
-    dts-bundle-generator: bin/dts-bundle-generator.js
-  checksum: 9109dbb6fc10bb5c0fb58f1aef6b00587087347c1285b1c62352890bce597fd94f5fdb86a6ae07660400f5b04e0951c96c1bb62b2ffd103ec16e28f276504ac1
-  languageName: node
-  linkType: hard
-
 "ecc-jsbn@npm:~0.1.1":
   version: 0.1.2
   resolution: "ecc-jsbn@npm:0.1.2"
@@ -6465,16 +6453,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-typescript@>=2.6.1:
-  version: 3.9.3
-  resolution: "typescript@npm:3.9.3"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: f05e6f1c50c635bd7afc95fbc9eb704042b5bec9a77b9c86ddc0c56650c928617d608b9ec9aa468d7b4cf14ac1ea5f540c540c725005a179b54a86665abd9a55
-  languageName: node
-  linkType: hard
-
 typescript@^3.9.5:
   version: 3.9.5
   resolution: "typescript@npm:3.9.5"
@@ -6482,16 +6460,6 @@ typescript@^3.9.5:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 15618435493667083eb43dc7b36c4d3dd47fd9e9c8a14f0ac4019bbf6124b6cc518b6ed506400913db1bf50831207ee8201b5d827680076930b562923f4f18a0
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@>=2.6.1#builtin<compat/typescript>":
-  version: 3.9.3
-  resolution: "typescript@patch:typescript@npm%3A3.9.3#builtin<compat/typescript>::version=3.9.3&hash=5bf698"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: dd2cbe8012bd4dfc41ee99c2b2b560149d0150edbc17165c0f7dd917f89d26c2a5a94bade686340dd6ffb43036a6034440afe63d4cf6129c6bbb40b53393b318
   languageName: node
   linkType: hard
 
@@ -6691,7 +6659,6 @@ typescript@^3.9.5:
     acorn-walk: ^8.0.0
     copyfiles: ^2.3.0
     cross-env: ^7.0.2
-    dts-bundle-generator: ^4.3.0
     escodegen: ^2.0.0
     esprima: ^4.0.1
     jest: ^26.0.1
