@@ -2,17 +2,17 @@ all:  lame.wasm vorbis.wasm
 
 ifeq ($(NODE_ENV),production)
   emcc_flags = -Oz -flto --closure 1 
+  emcc_linker_flags = -Oz -flto --closure 1 
 else
-  emcc_flags = -O0 -g
+  emcc_flags = -O0 -g -fdebug-prefix-map=/src/=
+	emcc_linker_flags = -O0 -g4 -fdebug-prefix-map=/src/= --source-map-base file://$(BUILD_DIR)/
 endif
 
 lame/lame-src/dist/lib/libmp3lame.a:
 	cd lame/lame-src && \
-	git reset --hard && \
 	emconfigure ./configure \
 		CFLAGS="-DNDEBUG -DNO_STDIO $(emcc_flags)" \
 		LDFLAGS="$(emcc_flags)" \
-		--cache-file=/emsdk_portable/.data/config.cache \
 		--prefix="$$(pwd)/dist" \
 		--disable-shared \
 		\
@@ -27,8 +27,8 @@ lame/lame-src/dist/lib/libmp3lame.a:
 lame.wasm: lame/lame-src/dist/lib/libmp3lame.a lame/lame_enc.c
 	@mkdir -p build
 	emcc $^ \
-	  -DNDEBUG $(emcc_flags) -Ilame/lame-src/dist/include \
-		--js-transform "node -r ../../.pnp.js -r ts-node/register ../../scripts/process_wasm.ts" \
+	  -DNDEBUG $(emcc_linker_flags) -Ilame/lame-src/dist/include \
+		--js-transform "node ../../process_wasm_js" \
 		-s MALLOC=emmalloc \
 		-s MINIMAL_RUNTIME \
 		-s MODULARIZE \
@@ -40,7 +40,6 @@ lame.wasm: lame/lame-src/dist/lib/libmp3lame.a lame/lame_enc.c
 
 vorbis/ogg-src/dist/lib/libogg.a:
 	cd vorbis/ogg-src && \
-	git reset --hard && \
 	emcmake cmake . \
 		-DCMAKE_INSTALL_PREFIX=$$(pwd)/dist \
 		-DCMAKE_C_FLAGS="$(emcc_flags)" \
@@ -50,13 +49,12 @@ vorbis/ogg-src/dist/lib/libogg.a:
 
 vorbis/vorbis-src/dist/lib/libvorbis.a: vorbis/ogg-src/dist/lib/libogg.a
 	cd vorbis/vorbis-src && \
-	git reset --hard && \
 	emcmake cmake . \
 		-DCMAKE_INSTALL_PREFIX=$$(pwd)/dist \
 		-DCMAKE_C_FLAGS="$(emcc_flags)" \
 		-DCMAKE_MODULE_LINKER_FLAGS_INIT="$(emcc_flags)" \
-		-DOGG_INCLUDE_DIRS=/src/src/wasm/vorbis/ogg-src/dist/include \
-		-DOGG_LIBRARIES=/src/src/wasm/vorbis/ogg-src/dist/lib/libogg.a \
+		-DOGG_INCLUDE_DIR=/src/src/wasm/vorbis/ogg-src/dist/include \
+		-DOGG_LIBRARY=/src/src/wasm/vorbis/ogg-src/dist/lib/libogg.a \
 		&& \
 	emmake make all install
 
@@ -66,8 +64,8 @@ vorbis.wasm: \
 	vorbis/vorbis-src/dist/lib/libvorbisenc.a \
 	vorbis/vorbis_enc.c
 	emcc $^ \
-	  $(emcc_flags) -Ivorbis/vorbis-src/dist/include -Ivorbis/ogg-src/dist/include \
-		--js-transform "node -r ../../.pnp.js -r ts-node/register ../../scripts/process_wasm.ts" \
+	  $(emcc_linker_flags) -Ivorbis/vorbis-src/dist/include -Ivorbis/ogg-src/dist/include \
+		--js-transform "node ../../process_wasm_js" \
 		-s MALLOC=emmalloc \
 		-s MINIMAL_RUNTIME \
 		-s MODULARIZE \

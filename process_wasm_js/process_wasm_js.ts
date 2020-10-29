@@ -30,7 +30,12 @@ function changeExportToMember(node: Identifier) {
   const newNode = (node as unknown) as MemberExpression;
   newNode.type = "MemberExpression";
   newNode.object = { type: "Identifier", name: "Module" };
-  newNode.property = oldNode;
+  newNode.computed = true;
+  newNode.property = {
+    type: "Literal",
+    value: node.name,
+    raw: `'${node.name}'`,
+  };
 }
 
 const walkConfig: AncestorVisitors<void> = {
