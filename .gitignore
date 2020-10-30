@@ -1,6 +1,6 @@
 /dist
 /wasm
-node_modules/
+/src/wasm/build/*.wasm.map
 
 .DS_Store
 .env.local
@@ -13,8 +13,8 @@ yarn-debug.log*
 yarn-error.log*
 
 .yarn/*
+!.yarn/cache
 !.yarn/releases
 !.yarn/plugins
 !.yarn/sdks
 !.yarn/versions
-.pnp.*

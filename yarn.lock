@@ -1672,36 +1672,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/emscripten@npm:^1.39.4":
-  version: 1.39.4
-  resolution: "@types/emscripten@npm:1.39.4"
-  checksum: b848421e2597a0ce56b74c6427f843cfd8f26dec8eaaa1929317e9417bc06eaa934057c317cbb561ade2f5462b6906e37868608211e09f9f507dca62066795a8
-  languageName: node
-  linkType: hard
-
-"@types/escodegen@npm:^0.0.6":
-  version: 0.0.6
-  resolution: "@types/escodegen@npm:0.0.6"
-  checksum: 6e9eb136c67c1b415d1c1180c52386c30ea54ba3f36b48067ff7379bac9bf32256db6055ff5e16a7f76a43ad7ba6a64028ff833118c91305f603fbd358c564f3
-  languageName: node
-  linkType: hard
-
-"@types/esprima@npm:^4.0.2":
-  version: 4.0.2
-  resolution: "@types/esprima@npm:4.0.2"
-  dependencies:
-    "@types/estree": "*"
-  checksum: ee9468c7072c181d73c249e5c671ac8001aa79292cfa91b33d85c6e111b9a5a2126bbb3af4193bf07be25df597dc632b8464a172fa43acd45903dbe023ca8546
-  languageName: node
-  linkType: hard
-
-"@types/estree@npm:*, @types/estree@npm:^0.0.45":
-  version: 0.0.45
-  resolution: "@types/estree@npm:0.0.45"
-  checksum: 9d339cbcf29a96a32e9d40efc21009c2342e93c4f653294dd1ef081ae474bca9e54707e5d4a1cff90b9e3566e8bdd71ac31e0c3d24bc2ff1d3d5aa75058b3937
-  languageName: node
-  linkType: hard
-
 "@types/estree@npm:0.0.39":
   version: 0.0.39
   resolution: "@types/estree@npm:0.0.39"
@@ -1892,13 +1862,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"acorn-walk@npm:^8.0.0":
-  version: 8.0.0
-  resolution: "acorn-walk@npm:8.0.0"
-  checksum: 667044d50cf730830c76c1d61ab6b8a85c0dac2309534761e66ca07e779da0c67e62ac5b4bb737ab0bf63c3cef00710486de76860b4b1aeb9a7d68e7327d6900
-  languageName: node
-  linkType: hard
-
 "acorn@npm:^7.1.1":
   version: 7.2.0
   resolution: "acorn@npm:7.2.0"
@@ -1996,13 +1959,6 @@ __metadata:
     delegates: ^1.0.0
     readable-stream: ^2.0.6
   checksum: 2d6fdb0ddde9b8cb120b6851b42c75f6b6db78b540b579a00d144ad38cb9e1bdf1248e5454049fcf5b47ef61d1a6f2ea433a8e38984158afd441bc1e0db7a625
-  languageName: node
-  linkType: hard
-
-"arg@npm:^4.1.0":
-  version: 4.1.3
-  resolution: "arg@npm:4.1.3"
-  checksum: 81b3b40b1529c4fbf75b12f7c3e6fb2dcce9e78072063babc169de9b4f40777788f3d2b04380f659ef676a756e03ccfbfe78adf4477353bda906295fa69dab89
   languageName: node
   linkType: hard
 
@@ -2817,13 +2773,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"diff@npm:^4.0.1":
-  version: 4.0.2
-  resolution: "diff@npm:4.0.2"
-  checksum: 81b5cd7ddde6f0ba2a532d434cfdca365aedd6cc62bb133e851e66e071d40382a30924a07c1034bd3d5a2e332146f64514b73c06fe2ebc0490a67f0c98da79fb
-  languageName: node
-  linkType: hard
-
 "domexception@npm:^2.0.1":
   version: 2.0.1
   resolution: "domexception@npm:2.0.1"
@@ -2915,25 +2864,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"escodegen@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "escodegen@npm:2.0.0"
-  dependencies:
-    esprima: ^4.0.1
-    estraverse: ^5.2.0
-    esutils: ^2.0.2
-    optionator: ^0.8.1
-    source-map: ~0.6.1
-  dependenciesMeta:
-    source-map:
-      optional: true
-  bin:
-    escodegen: bin/escodegen.js
-    esgenerate: bin/esgenerate.js
-  checksum: c49da32cd173570f2076f0d52b80761b2a876dfea2046bfc8c5dc84f76b70105e35b2fed10fe0a8487df14674d46bc30245f3a27e8838601c3c85e68f693f363
-  languageName: node
-  linkType: hard
-
 "esprima@npm:^4.0.0, esprima@npm:^4.0.1":
   version: 4.0.1
   resolution: "esprima@npm:4.0.1"
@@ -2948,13 +2878,6 @@ __metadata:
   version: 4.3.0
   resolution: "estraverse@npm:4.3.0"
   checksum: 1e4c627da9e9af07bf7b2817320f606841808fb2ec0cbd81097b30d5f90d8613288b3e523153babe04615d59b54ef876d98f0ca27488b6c0934dacd725a8d338
-  languageName: node
-  linkType: hard
-
-"estraverse@npm:^5.2.0":
-  version: 5.2.0
-  resolution: "estraverse@npm:5.2.0"
-  checksum: 7dc1b027aebf937bab10c3254d9d73ed21672d7382518c9ddb9dc45560cb2f4e6548cc8ff1a07b7f431e94bd0fb0bf5da75b602e2473f966fea141c4c31b31d6
   languageName: node
   linkType: hard
 
@@ -4566,7 +4489,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"make-error@npm:1.x, make-error@npm:^1.1.1":
+"make-error@npm:1.x":
   version: 1.3.6
   resolution: "make-error@npm:1.3.6"
   checksum: 2c780bab8409b865e8ee86697c599a2bf2765ec64d21eb67ccda27050e039f983feacad05a0d43aba3c966ea03d305d2612e94fec45474bcbc61181f57c5bb88
@@ -5903,7 +5826,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"source-map-support@npm:^0.5.17, source-map-support@npm:^0.5.6, source-map-support@npm:~0.5.12":
+"source-map-support@npm:^0.5.6, source-map-support@npm:~0.5.12":
   version: 0.5.19
   resolution: "source-map-support@npm:0.5.19"
   dependencies:
@@ -6348,26 +6271,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-node@npm:^9.0.0":
-  version: 9.0.0
-  resolution: "ts-node@npm:9.0.0"
-  dependencies:
-    arg: ^4.1.0
-    diff: ^4.0.1
-    make-error: ^1.1.1
-    source-map-support: ^0.5.17
-    yn: 3.1.1
-  peerDependencies:
-    typescript: ">=2.7"
-  bin:
-    ts-node: dist/bin.js
-    ts-node-script: dist/bin-script.js
-    ts-node-transpile-only: dist/bin-transpile.js
-    ts-script: dist/bin-script-deprecated.js
-  checksum: 49d2ab087fc4b93f0a292e426ea6d242a80d1a4809ac008758bb0170aea1a85cd4182792c1d70889285fe5328cd8bd1ffb1e5108d1c4f31c39dbe9151ea4cabe
-  languageName: node
-  linkType: hard
-
 "ts-transformer-minify-privates@npm:^0.3.0":
   version: 0.3.0
   resolution: "ts-transformer-minify-privates@npm:0.3.0"
@@ -6650,17 +6553,10 @@ typescript@^3.9.5:
     "@rollup/plugin-json": ^4.0.3
     "@rollup/plugin-replace": ^2.3.3
     "@rollup/plugin-url": ^5.0.0
-    "@types/emscripten": ^1.39.4
-    "@types/escodegen": ^0.0.6
-    "@types/esprima": ^4.0.2
-    "@types/estree": ^0.0.45
     "@types/jest": ^25.2.3
     "@types/node": ^14.14.5
-    acorn-walk: ^8.0.0
     copyfiles: ^2.3.0
     cross-env: ^7.0.2
-    escodegen: ^2.0.0
-    esprima: ^4.0.1
     jest: ^26.0.1
     jest-fetch-mock: ^3.0.3
     rimraf: ^3.0.2
@@ -6668,7 +6564,6 @@ typescript@^3.9.5:
     rollup-plugin-terser: ^6.1.0
     rollup-plugin-ts: ^1.2.24
     ts-jest: ^26.0.0
-    ts-node: ^9.0.0
     ts-transformer-minify-privates: ^0.3.0
     tslib: ^2.0.0
     typescript: ^3.9.5
@@ -6888,12 +6783,5 @@ typescript@^3.9.5:
     y18n: ^4.0.0
     yargs-parser: ^18.1.1
   checksum: 6504a0bb4e6f5933ebaaa52307943a9cdb44da6200cd1ca8794aaa1d18b70f0acd2f49f46630b07bd4d2aa12cb1fe666b186d367c36fa1b4998f7ce8bdc9ffdf
-  languageName: node
-  linkType: hard
-
-"yn@npm:3.1.1":
-  version: 3.1.1
-  resolution: "yn@npm:3.1.1"
-  checksum: bff63b80568d80c711670935427494dde47cdf97e8b04196b140ce0af519c81c5ee857eddad0caa8b422dd65aea0157bbfaacbb1546bebba623f0f383d5d9ae5
   languageName: node
   linkType: hard
