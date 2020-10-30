@@ -1,5 +1,6 @@
 #include <lame/lame.h>
 #include <stdlib.h>
+#include <emscripten.h>
 
 // 30 seconds of audio at 48kHz
 #define MP3_BUFFER_SIZE(num_samples) (1.25 * (num_samples) + 7200)
@@ -8,9 +9,10 @@
 
 typedef struct _CFG
 {
-  float *pcm_l;
-  float *pcm_r;
+  float *pcm;
+  float *pcm_ret[2];
   unsigned int pcm_sample_count;
+  unsigned int channel_count;
   unsigned char *mp3_buffer;
   unsigned int mp3_buffer_size;
   lame_global_flags *gfp;
@@ -22,27 +24,31 @@ typedef struct _PARAMS
   float vbr_quality;
 } PARAMS, *PPARAMS;
 
+EMSCRIPTEN_KEEPALIVE
 float **enc_get_pcm(PCFG cfg, unsigned int num_samples)
 {
-  if (num_samples > cfg->pcm_sample_count)
+  if (num_samples * cfg->channel_count > cfg->pcm_sample_count)
   {
-    cfg->pcm_sample_count = num_samples;
-    cfg->pcm_l = realloc(cfg->pcm_l, cfg->pcm_sample_count * sizeof(*cfg->pcm_l));
-    cfg->pcm_r = realloc(cfg->pcm_r, cfg->pcm_sample_count * sizeof(*cfg->pcm_r));
-    if (!cfg->pcm_l || !cfg->pcm_r)
+    cfg->pcm_sample_count = num_samples * cfg->channel_count * 2;
+    cfg->pcm = realloc(cfg->pcm, cfg->pcm_sample_count * sizeof(*cfg->pcm));
+    if (!cfg->pcm)
     {
       return NULL;
     }
+    cfg->pcm_ret[0] = cfg->pcm;
+    cfg->pcm_ret[1] = cfg->pcm + cfg->pcm_sample_count / 2;
   }
 
-  return &cfg->pcm_l;
+  return cfg->pcm_ret;
 }
 
+EMSCRIPTEN_KEEPALIVE
 unsigned char *enc_get_out_buf(PCFG cfg)
 {
   return cfg->mp3_buffer;
 }
 
+EMSCRIPTEN_KEEPALIVE
 void enc_free(PCFG cfg)
 {
   if (cfg)
@@ -51,13 +57,9 @@ void enc_free(PCFG cfg)
     {
       lame_close(cfg->gfp);
     }
-    if (cfg->pcm_l)
+    if (cfg->pcm)
     {
-      free(cfg->pcm_l);
-    }
-    if (cfg->pcm_r)
-    {
-      free(cfg->pcm_r);
+      free(cfg->pcm);
     }
     if (cfg->mp3_buffer)
     {
@@ -67,6 +69,7 @@ void enc_free(PCFG cfg)
   }
 }
 
+EMSCRIPTEN_KEEPALIVE
 PCFG enc_init(unsigned int sample_rate,
               unsigned int channel_count,
               PPARAMS params)
@@ -82,15 +85,17 @@ PCFG enc_init(unsigned int sample_rate,
   {
     goto Cleanup;
   }
+  cfg->channel_count = channel_count;
   cfg->mp3_buffer_size = DEFAULT_MP3_SIZE;
   cfg->mp3_buffer =
       malloc(cfg->mp3_buffer_size);
 
-  cfg->pcm_sample_count = DEFAULT_PCM_SAMPLE_COUNT;
-  cfg->pcm_l = malloc(cfg->pcm_sample_count * sizeof(*cfg->pcm_l));
-  cfg->pcm_r = malloc(cfg->pcm_sample_count * sizeof(*cfg->pcm_r));
+  cfg->pcm_sample_count = DEFAULT_PCM_SAMPLE_COUNT * channel_count;
+  cfg->pcm = malloc(cfg->pcm_sample_count * sizeof(*cfg->pcm));
+  cfg->pcm_ret[0] = cfg->pcm;
+  cfg->pcm_ret[1] = cfg->pcm + cfg->pcm_sample_count / 2;
   cfg->gfp = lame_init();
-  if (!cfg->mp3_buffer || !cfg->gfp || !cfg->pcm_l || !cfg->pcm_r)
+  if (!cfg->mp3_buffer || !cfg->gfp || !cfg->pcm)
   {
     goto Cleanup;
   }
@@ -121,6 +126,7 @@ Cleanup:
   return NULL;
 }
 
+EMSCRIPTEN_KEEPALIVE
 int enc_encode(PCFG cfg, unsigned int num_samples)
 {
   if (MP3_BUFFER_SIZE(num_samples) > cfg->mp3_buffer_size)
@@ -128,9 +134,10 @@ int enc_encode(PCFG cfg, unsigned int num_samples)
     cfg->mp3_buffer_size *= 2;
     cfg->mp3_buffer = realloc(cfg->mp3_buffer, cfg->mp3_buffer_size);
   }
-  return lame_encode_buffer_ieee_float(cfg->gfp, cfg->pcm_l, cfg->pcm_r, num_samples, cfg->mp3_buffer, cfg->mp3_buffer_size);
+  return lame_encode_buffer_ieee_float(cfg->gfp, cfg->pcm_ret[0], cfg->pcm_ret[1], num_samples, cfg->mp3_buffer, cfg->mp3_buffer_size);
 }
 
+EMSCRIPTEN_KEEPALIVE
 int enc_flush(PCFG cfg)
 {
   return lame_encode_flush(cfg->gfp, cfg->mp3_buffer, cfg->mp3_buffer_size);

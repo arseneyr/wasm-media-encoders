@@ -1,5 +1,4 @@
 import { XOR } from "../../utils";
-import Mp3Module from "../build/mp3";
 
 type Mp3CbrValues =
   | 8
@@ -62,5 +61,4 @@ function parseMp3Params(params: Mp3Params) {
 export const Mp3Params = {
   mimeType: "audio/mpeg" as const,
   parseParams: parseMp3Params,
-  module: Mp3Module,
 };

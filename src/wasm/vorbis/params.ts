@@ -1,5 +1,3 @@
-import OggModule from "../build/ogg";
-
 const MIN_INT = -2147483648;
 const MAX_INT = 2147483647;
 
@@ -32,5 +30,4 @@ function parseOggParams(params: OggParams) {
 export const OggParams = {
   mimeType: "audio/ogg" as const,
   parseParams: parseOggParams,
-  module: OggModule,
 };

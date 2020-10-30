@@ -1,0 +1,17 @@
+[
+  { "name": "enc_init", "export": "enc_init", "root": true },
+  { "name": "enc_encode", "export": "enc_encode", "root": true },
+  { "name": "enc_flush", "export": "enc_flush", "root": true },
+  { "name": "enc_get_pcm", "export": "enc_get_pcm", "root": true },
+  { "name": "enc_get_out_buf", "export": "enc_get_out_buf", "root": true },
+  { "name": "enc_free", "export": "enc_free", "root": true },
+  { "name": "memory", "export": "memory", "root": true },
+  { "name": "malloc", "export": "malloc", "root": true },
+  { "name": "free", "export": "free", "root": true },
+  {
+    "name": "emscripten_notify_memory_growth",
+    "import": ["env", "emscripten_notify_memory_growth"],
+    "root": true
+  },
+  { "name": "_initialize", "export": "_initialize", "root": true }
+]

@@ -1,7 +1,7 @@
 import { compileModule } from "./compile";
 import { Mp3Params } from "./wasm/lame/params";
 import { OggParams } from "./wasm/vorbis/params";
-import { IWasmEncoder } from "./wasm/types/wasmEncoder";
+import EmscriptenModule from "./wasm/module";
 
 interface BaseEncoderParams {
   channels: 1 | 2;
@@ -29,6 +29,7 @@ type EncoderParams<T extends keyof ConfigMap> = Parameters<
 >[0];
 
 export type SupportedMimeTypes = keyof ConfigMap;
+type Unpromisify<T> = T extends PromiseLike<infer U> ? U : T;
 
 class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
   private ref!: number;
@@ -40,13 +41,13 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
   };
 
   private get_pcm(num_samples: number) {
-    const pcm_ptr_ptr = this.module._enc_get_pcm(this.ref, num_samples);
+    const pcm_ptr_ptr = this.module.enc_get_pcm(this.ref, num_samples);
     if (!pcm_ptr_ptr) {
       throw new Error("PCM buffer allocation failed!");
     }
     const pcm_ptrs = this.module.HEAP32.subarray(
       pcm_ptr_ptr >> 2,
-      (pcm_ptr_ptr >> 2) + 2
+      (pcm_ptr_ptr >> 2) + this.channelCount
     );
     return Array.from({ length: this.channelCount }, (_, i) =>
       this.module.HEAPF32.subarray(
@@ -57,13 +58,13 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
   }
 
   private get_out_buf(size: number) {
-    const ptr = this.module._enc_get_out_buf(this.ref);
+    const ptr = this.module.enc_get_out_buf(this.ref);
     return this.module.HEAPU8.subarray(ptr, ptr + size);
   }
 
   private constructor(
     public readonly mimeType: MimeType,
-    private readonly module: IWasmEncoder,
+    private readonly module: Unpromisify<ReturnType<typeof EmscriptenModule>>,
     private readonly parseParams: (
       params: EncoderParams<MimeType>
     ) => Int32Array
@@ -85,25 +86,25 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
     }
     return new WasmMediaEncoder(
       mimeType,
-      await WasmMediaEncoder.encoderConfigs[mimeType].module({ wasm }),
+      await EmscriptenModule(wasm),
       WasmMediaEncoder.encoderConfigs[mimeType].parseParams
     );
   }
 
   public configure(params: BaseEncoderParams & EncoderParams<MimeType>) {
     if (this.ref) {
-      this.module._enc_free(this.ref);
+      this.module.enc_free(this.ref);
       this.ref = 0;
     }
     const paramBuffer = this.parseParams(params);
-    const paramAlloc = this.module._malloc(paramBuffer.byteLength);
+    const paramAlloc = this.module.malloc(paramBuffer.byteLength);
     if (!paramAlloc) {
       throw new Error("Failed to allocate parameter buffer");
     }
     this.module.HEAP32.set(paramBuffer, paramAlloc >> 2);
     this.channelCount = params.channels;
     try {
-      this.ref = this.module._enc_init(
+      this.ref = this.module.enc_init(
         params.sampleRate,
         params.channels,
         paramAlloc
@@ -112,7 +113,7 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
         throw new Error("Encoder initialization failed!");
       }
     } finally {
-      this.module._free(paramAlloc);
+      this.module.free(paramAlloc);
     }
   }
 
@@ -120,7 +121,7 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
     const pcm = this.get_pcm(samples[0].length);
     pcm.forEach((b, i) => b.set(samples[i]));
 
-    const bytes_written = this.module._enc_encode(this.ref, pcm[0].length);
+    const bytes_written = this.module.enc_encode(this.ref, pcm[0].length);
     if (bytes_written < 0) {
       throw new Error(`Error while encoding ${bytes_written}`);
     }
@@ -128,7 +129,7 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
   }
 
   public finalize() {
-    const bytes_written = this.module._enc_flush(this.ref);
+    const bytes_written = this.module.enc_flush(this.ref);
     if (bytes_written < 0) {
       throw new Error(`Error while encoding ${bytes_written}`);
     }
