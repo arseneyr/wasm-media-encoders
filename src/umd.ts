@@ -1,4 +1,4 @@
-import { createEncoder, WasmMediaEncoder, SupportedMimeTypes } from "./encoder";
+import { createEncoder, WasmMediaEncoder } from "./encoder";
 import { name, version } from "../package.json";
 
 const createMp3Encoder = createEncoder.bind(

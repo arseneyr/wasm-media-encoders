@@ -1,4 +1,3 @@
-import { compileModule } from "./compile";
 import { Mp3Params } from "./wasm/lame/params";
 import { OggParams } from "./wasm/vorbis/params";
 import EmscriptenModule from "./wasm/module";
@@ -31,14 +30,14 @@ type EncoderParams<T extends keyof ConfigMap> = Parameters<
 export type SupportedMimeTypes = keyof ConfigMap;
 type Unpromisify<T> = T extends PromiseLike<infer U> ? U : T;
 
+const encoderConfigs: ConfigMap = {
+  [Mp3Params.mimeType]: Mp3Params,
+  [OggParams.mimeType]: OggParams,
+};
+
 class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
   private ref!: number;
   private channelCount!: number;
-
-  private static readonly encoderConfigs: ConfigMap = {
-    [Mp3Params.mimeType]: Mp3Params,
-    [OggParams.mimeType]: OggParams,
-  };
 
   private get_pcm(num_samples: number) {
     const pcm_ptr_ptr = this.module.enc_get_pcm(this.ref, num_samples);
@@ -72,22 +71,15 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
 
   public static async create<T extends SupportedMimeTypes>(
     mimeType: T,
-    wasm: string | ArrayBuffer | Uint8Array | WebAssembly.Module
+    wasm: string | ArrayBuffer | Uint8Array | WebAssembly.Module,
+    moduleCallback?: (module: WebAssembly.Module) => void
   ): Promise<WasmMediaEncoder<T>> {
-    if (!WasmMediaEncoder.encoderConfigs[mimeType]) {
-      throw new Error(`Unsupported mimetype ${mimeType}`);
-    }
-    if (!wasm) {
-      throw new Error("No WASM specified");
-    }
-
-    if (typeof wasm === "string") {
-      wasm = await compileModule(wasm);
-    }
+    const em_module = await EmscriptenModule(wasm);
+    em_module.module && moduleCallback?.(em_module.module);
     return new WasmMediaEncoder(
       mimeType,
-      await EmscriptenModule(wasm),
-      WasmMediaEncoder.encoderConfigs[mimeType].parseParams
+      em_module,
+      encoderConfigs[mimeType].parseParams
     );
   }
 

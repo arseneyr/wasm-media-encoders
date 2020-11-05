@@ -14,15 +14,62 @@ interface IWasmEncoder {
   memory: WebAssembly.Memory;
 }
 
-export default async function (wasm: BufferSource | WebAssembly.Module) {
-  const output = (await WebAssembly.instantiate(wasm, {
+function intArrayFromBase64(s: string) {
+  try {
+    //@ts-ignore
+    if (__maybeNode__ && Buffer) {
+      return Buffer.from(s, "base64");
+    }
+    var decoded = atob(s);
+    var bytes = new Uint8Array(decoded.length);
+    for (var i = 0; i < decoded.length; ++i) {
+      bytes[i] = decoded.charCodeAt(i);
+    }
+    return bytes;
+  } catch (_) {
+    throw new Error("Converting base64 string to bytes failed.");
+  }
+}
+
+function parseDataUrl(url: string) {
+  const parts = url.split(",");
+  if (
+    parts.length !== 2 ||
+    /^data:(application\/octet-stream|application\/wasm);base64$/.test(
+      parts[0]
+    ) === false
+  ) {
+    return null;
+  }
+
+  return intArrayFromBase64(parts[1]).buffer;
+}
+
+export default async function (
+  wasm: BufferSource | WebAssembly.Module | string
+) {
+  const imports = {
     wasi_snapshot_preview1: { proc_exit: () => {} },
     env: { emscripten_notify_memory_growth },
-  })) as any;
-  const { memory, _initialize, ...rest } = (output.instance || output)
+  };
+  const wasmBufferOrModule =
+    typeof wasm === "string"
+      ? parseDataUrl(wasm) ??
+        (!WebAssembly.instantiateStreaming &&
+          (await (await fetch(wasm)).arrayBuffer()))
+      : wasm;
+
+  const output = await (wasmBufferOrModule
+    ? WebAssembly.instantiate(wasmBufferOrModule, imports)
+    : WebAssembly.instantiateStreaming(fetch(wasm as string), imports));
+
+  const { memory, _initialize, ...rest } = ((output as any).instance || output)
     .exports as IWasmEncoder;
 
-  const ret = { ...rest };
+  const ret = {
+    ...rest,
+    module: (output as { module?: WebAssembly.Module }).module,
+  };
 
   function emscripten_notify_memory_growth() {
     ret.HEAPF32 = new Float32Array(memory.buffer);

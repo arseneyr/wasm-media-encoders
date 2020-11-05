@@ -13,56 +13,62 @@ describe.each([
   beforeAll(async () => {
     wasm = await fs.readFile(resolve(__dirname, "../wasm/build", filename));
   });
-
-  test("Unsupported mimeType", async () => {
-    await expect(createEncoder("video/mpeg" as any, "")).rejects.toBeInstanceOf(
-      Error
-    );
+  beforeEach(() => {
+    fetchMock.mockResponse(async (req) => {
+      if (req.url !== "https://example.com/" + filename) {
+        throw new Error("Unknown request");
+      }
+      return (await new Response(wasm)) as any;
+    });
   });
 
-  describe("fetching from url", () => {
-    beforeEach(() => {
-      fetchMock.mockResponse(async (req) => {
-        if (req.url !== "https://example.com/" + filename) {
-          throw new Error("Unknown request");
-        }
-        return (await new Response(wasm)) as any;
-      });
-    });
+  afterEach(() => {
+    fetchMock.resetMocks();
+  });
 
-    afterEach(() => {
-      fetchMock.resetMocks();
-    });
+  test("Unsupported mimeType", async () => {
+    await expect(
+      createEncoder("video/mpeg" as any, undefined as any)
+    ).rejects.toBeInstanceOf(Error);
+  });
 
-    test("fetch from custom url", async () => {
-      await expect(
-        createEncoder(mimeType, `https://example.com/${filename}`)
-      ).resolves.toBeInstanceOf(WasmMediaEncoder);
-      expect(fetchMock.mock.calls[0][0]).toMatch("example.com");
-    });
+  test("fetch from custom url", async () => {
+    await expect(
+      createEncoder(mimeType, `https://example.com/${filename}`)
+    ).resolves.toBeInstanceOf(WasmMediaEncoder);
+    expect(fetchMock.mock.calls[0][0]).toMatch("example.com");
+  });
 
-    test("fetch from data uri", async () => {
-      const dataUri = "data:application/wasm;base64," + wasm.toString("base64");
+  test("fetch from data uri", async () => {
+    const dataUri = "data:application/wasm;base64," + wasm.toString("base64");
 
-      await expect(createEncoder(mimeType, dataUri)).resolves.toBeInstanceOf(
-        WasmMediaEncoder
-      );
-      expect(fetchMock.mock.calls).toHaveLength(0);
-    });
+    await expect(createEncoder(mimeType, dataUri)).resolves.toBeInstanceOf(
+      WasmMediaEncoder
+    );
+    expect(fetchMock).toHaveBeenCalledTimes(0);
+  });
 
-    test("use buffer", async () => {
-      await expect(createEncoder(mimeType, wasm)).resolves.toBeInstanceOf(
-        WasmMediaEncoder
-      );
-      expect(fetchMock.mock.calls).toHaveLength(0);
-    });
+  test("use buffer", async () => {
+    await expect(createEncoder(mimeType, wasm)).resolves.toBeInstanceOf(
+      WasmMediaEncoder
+    );
+    expect(fetchMock).toHaveBeenCalledTimes(0);
+  });
 
-    test("use precompiled module", async () => {
-      await expect(
-        createEncoder(mimeType, await WebAssembly.compile(wasm))
-      ).resolves.toBeInstanceOf(WasmMediaEncoder);
-      expect(fetchMock.mock.calls).toHaveLength(0);
-    });
+  test("use precompiled module", async () => {
+    await expect(
+      createEncoder(mimeType, await WebAssembly.compile(wasm))
+    ).resolves.toBeInstanceOf(WasmMediaEncoder);
+    expect(fetchMock).toHaveBeenCalledTimes(0);
+  });
+
+  test("compiled module callback", async () => {
+    const mockCallback = jest.fn();
+    await expect(
+      createEncoder(mimeType, wasm, mockCallback)
+    ).resolves.toBeInstanceOf(WasmMediaEncoder);
+    expect(mockCallback).toHaveBeenCalledTimes(1);
+    expect(mockCallback.mock.calls[0][0]).toBeInstanceOf(WebAssembly.Module);
   });
 
   test("Buffer reallocation", async () => {
