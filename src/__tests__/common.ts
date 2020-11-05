@@ -56,10 +56,13 @@ describe.each([
   });
 
   test("use precompiled module", async () => {
+    const mockCallback = jest.fn();
+    const module = await WebAssembly.compile(wasm);
     await expect(
-      createEncoder(mimeType, await WebAssembly.compile(wasm))
+      createEncoder(mimeType, await WebAssembly.compile(wasm), mockCallback)
     ).resolves.toBeInstanceOf(WasmMediaEncoder);
     expect(fetchMock).toHaveBeenCalledTimes(0);
+    expect(mockCallback).toHaveBeenCalledWith(module);
   });
 
   test("compiled module callback", async () => {

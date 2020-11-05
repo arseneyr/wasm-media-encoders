@@ -68,7 +68,10 @@ export default async function (
 
   const ret = {
     ...rest,
-    module: (output as { module?: WebAssembly.Module }).module,
+    module:
+      wasm instanceof WebAssembly.Module
+        ? wasm
+        : (output as { module?: WebAssembly.Module }).module,
   };
 
   function emscripten_notify_memory_growth() {
