@@ -6,18 +6,17 @@
   "configurations": [
     {
       "name": "Debug Jest Tests",
-      "type": "node",
+      "type": "pwa-node",
       "request": "launch",
       "runtimeExecutable": "yarn",
       "runtimeArgs": [
         "run",
         "--inspect-brk",
         "jest",
-        "--runInBand"
+        "--runInBand",
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
-      "port": 9229
     }, 
    {
      "name": "Debug current file",
