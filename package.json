@@ -4,6 +4,18 @@
   "main": "dist/index.js",
   "module": "dist/es/index.js",
   "browser": "dist/browser/index.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "browser": "./dist/browser/index.js",
+      "import": "./dist/es/index.js",
+      "require": "./dist/index.js"
+    },
+    "./wasm/ogg": "./wasm/ogg.wasm",
+    "./wasm/mp3": "./wasm/mp3.wasm",
+    "./wasm/ogg.wasm": "./wasm/ogg.wasm",
+    "./wasm/mp3.wasm": "./wasm.mp3.wasm"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -14,8 +26,11 @@
     "dist",
     "wasm"
   ],
+  "engines": {
+    "node": ">= 10"
+  },
   "scripts": {
-    "build:encoders": "rimraf \"src/wasm/build/* wasm\" && docker run --rm -it --user $(id -u):$(id -g) -e NODE_ENV -e \"BUILD_DIR=$(pwd)src/wasm/build\" -v $(pwd):/src -v emsdk_cache:/emsdk/upstream/emscripten/cache -w /src/src/wasm emscripten/emsdk:2.0.8 make && copyfiles --flat src/wasm/build/*.wasm wasm",
+    "build:encoders": "rimraf \"src/wasm/build/* wasm\" && docker run --rm -it --user $(id -u):$(id -g) -e NODE_ENV -e \"BUILD_DIR=$(pwd)src/wasm/build\" -v $(pwd)/src:/src -v emsdk_cache:/emsdk/upstream/emscripten/cache -w /src/wasm emscripten/emsdk:2.0.8 make && copyfiles --flat src/wasm/build/*.wasm wasm",
     "clean:encoders": "docker run --rm -it -v $(pwd):/src -w /src/src/wasm emscripten/emsdk:2.0.8 make clean && docker volume rm emsdk_cache",
     "build:js": "rimraf \"dist/**/*\" && rollup -c",
     "build": "cross-env-shell NODE_ENV=development \"run build:encoders && run build:js\"",
@@ -44,7 +59,7 @@
     "ts-jest": "^26.0.0",
     "ts-transformer-minify-privates": "^0.3.0",
     "tslib": "^2.0.0",
-    "typescript": "^3.9.5",
+    "typescript": "^4.0.5",
     "wav": "^1.0.2"
   }
 }

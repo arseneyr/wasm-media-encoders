@@ -4,8 +4,8 @@ ifeq ($(NODE_ENV),production)
   emcc_flags = -Oz -flto
   emcc_linker_flags = -Oz -flto -Wl,--strip-all
 else
-  emcc_flags = -O0 -g -fdebug-prefix-map=/src/=
-	emcc_linker_flags = -O0 -g4 -fdebug-prefix-map=/src/= --source-map-base file://$(BUILD_DIR)/
+  emcc_flags = -O0 -g -fdebug-prefix-map=/src/=../
+	emcc_linker_flags = -O0 -g4 -fdebug-prefix-map=/src/=../ --source-map-base file://$(BUILD_DIR)/
 endif
 
 lame/lame-src/dist/lib/libmp3lame.a:
@@ -50,8 +50,8 @@ vorbis/vorbis-src/dist/lib/libvorbis.a: vorbis/ogg-src/dist/lib/libogg.a
 		-DCMAKE_INSTALL_PREFIX=$$(pwd)/dist \
 		-DCMAKE_C_FLAGS="$(emcc_flags)" \
 		-DCMAKE_MODULE_LINKER_FLAGS_INIT="$(emcc_flags)" \
-		-DOGG_INCLUDE_DIR=/src/src/wasm/vorbis/ogg-src/dist/include \
-		-DOGG_LIBRARY=/src/src/wasm/vorbis/ogg-src/dist/lib/libogg.a \
+		-DOGG_INCLUDE_DIR=/src/wasm/vorbis/ogg-src/dist/include \
+		-DOGG_LIBRARY=/src/wasm/vorbis/ogg-src/dist/lib/libogg.a \
 		&& \
 	emmake make all install
 
