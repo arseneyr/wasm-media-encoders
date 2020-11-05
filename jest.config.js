@@ -10,7 +10,7 @@ const common = {
   },
 };
 
-module.exports = {
+export default {
   projects: [
     {
       ...common,
