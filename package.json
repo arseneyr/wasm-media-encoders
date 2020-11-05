@@ -30,14 +30,14 @@
     "node": ">= 10"
   },
   "scripts": {
-    "build:encoders": "rimraf \"src/wasm/build/* wasm\" && docker run --rm -it --user $(id -u):$(id -g) -e NODE_ENV -e \"BUILD_DIR=$(pwd)src/wasm/build\" -v $(pwd)/src:/src -v emsdk_cache:/emsdk/upstream/emscripten/cache -w /src/wasm emscripten/emsdk:2.0.8 make && copyfiles --flat src/wasm/build/*.wasm wasm",
-    "clean:encoders": "docker run --rm -it -v $(pwd):/src -w /src/src/wasm emscripten/emsdk:2.0.8 make clean && docker volume rm emsdk_cache",
+    "build:encoders": "rimraf \"src/wasm/build/* wasm\" && docker run --rm --user $(id -u):$(id -g) -e NODE_ENV -e \"BUILD_DIR=$(pwd)src/wasm/build\" -v $(pwd)/src:/src -v emsdk_cache:/emsdk/upstream/emscripten/cache -w /src/wasm emscripten/emsdk:2.0.8 make && copyfiles --flat src/wasm/build/*.wasm wasm",
+    "clean:encoders": "docker run --rm -v $(pwd):/src -w /src/src/wasm emscripten/emsdk:2.0.8 make clean && docker volume rm emsdk_cache || true",
     "build:js": "rimraf \"dist/**/*\" && rollup -c",
     "build": "cross-env-shell NODE_ENV=development \"run build:encoders && run build:js\"",
     "build:prod": "cross-env-shell NODE_ENV=production \"run build:encoders && run build:js\"",
     "clean": "rimraf \"dist src/wasm/dist wasm\" && yarn clean:encoders",
     "test": "jest",
-    "prepack": "run clean && run build:prod && copyfiles \"src/wasm/*.wasm wasm/\""
+    "prepack": "run clean && run build:prod"
   },
   "devDependencies": {
     "@babel/core": "^7.10.1",
