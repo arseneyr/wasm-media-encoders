@@ -1,9 +1,6 @@
-import { enableFetchMocks } from "jest-fetch-mock";
 import { promises as fs } from "fs";
 import { resolve } from "path";
 import { createEncoder, WasmMediaEncoder } from "../encoder";
-
-enableFetchMocks();
 
 describe.each([
   ["audio/mpeg" as const, "mp3.wasm"],
@@ -12,18 +9,6 @@ describe.each([
   let wasm: Buffer;
   beforeAll(async () => {
     wasm = await fs.readFile(resolve(__dirname, "../wasm/build", filename));
-  });
-  beforeEach(() => {
-    fetchMock.mockResponse(async (req) => {
-      if (req.url !== "https://example.com/" + filename) {
-        throw new Error("Unknown request");
-      }
-      return (await new Response(wasm)) as any;
-    });
-  });
-
-  afterEach(() => {
-    fetchMock.resetMocks();
   });
 
   test("Unsupported mimeType", async () => {
@@ -35,8 +20,7 @@ describe.each([
   test("fetch from custom url", async () => {
     await expect(
       createEncoder(mimeType, `https://example.com/${filename}`)
-    ).resolves.toBeInstanceOf(WasmMediaEncoder);
-    expect(fetchMock.mock.calls[0][0]).toMatch("example.com");
+    ).rejects.toBeInstanceOf(Error);
   });
 
   test("fetch from data uri", async () => {
@@ -45,14 +29,12 @@ describe.each([
     await expect(createEncoder(mimeType, dataUri)).resolves.toBeInstanceOf(
       WasmMediaEncoder
     );
-    expect(fetchMock).toHaveBeenCalledTimes(0);
   });
 
   test("use buffer", async () => {
     await expect(createEncoder(mimeType, wasm)).resolves.toBeInstanceOf(
       WasmMediaEncoder
     );
-    expect(fetchMock).toHaveBeenCalledTimes(0);
   });
 
   test("use precompiled module", async () => {
@@ -61,7 +43,6 @@ describe.each([
     await expect(
       createEncoder(mimeType, await WebAssembly.compile(wasm), mockCallback)
     ).resolves.toBeInstanceOf(WasmMediaEncoder);
-    expect(fetchMock).toHaveBeenCalledTimes(0);
     expect(mockCallback).toHaveBeenCalledWith(module);
   });
 

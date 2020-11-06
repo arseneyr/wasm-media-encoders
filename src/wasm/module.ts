@@ -1,3 +1,5 @@
+import { XOR } from "../utils";
+
 interface IWasmEncoder {
   enc_init(sample_rate: number, channel_count: number, params: number): number;
   enc_encode(cfg: number, num_samples: number): number;
@@ -14,35 +16,20 @@ interface IWasmEncoder {
   memory: WebAssembly.Memory;
 }
 
-function intArrayFromBase64(s: string) {
-  try {
-    //@ts-ignore
-    if (__maybeNode__ && Buffer) {
-      return Buffer.from(s, "base64");
-    }
-    var decoded = atob(s);
-    var bytes = new Uint8Array(decoded.length);
-    for (var i = 0; i < decoded.length; ++i) {
-      bytes[i] = decoded.charCodeAt(i);
-    }
-    return bytes;
-  } catch (_) {
-    throw new Error("Converting base64 string to bytes failed.");
-  }
+declare global {
+  const __maybeNode__: boolean;
 }
 
 function parseDataUrl(url: string) {
   const parts = url.split(",");
   if (
     parts.length !== 2 ||
-    /^data:(application\/octet-stream|application\/wasm);base64$/.test(
-      parts[0]
-    ) === false
+    /^data:application\/(octet-stream|wasm);base64$/.test(parts[0]) === false
   ) {
-    return null;
+    throw new Error("Passed non-data URI");
   }
 
-  return intArrayFromBase64(parts[1]).buffer;
+  return Buffer.from(parts[1], "base64");
 }
 
 export default async function (
@@ -52,26 +39,30 @@ export default async function (
     wasi_snapshot_preview1: { proc_exit: () => {} },
     env: { emscripten_notify_memory_growth },
   };
-  const wasmBufferOrModule =
-    typeof wasm === "string"
-      ? parseDataUrl(wasm) ??
-        (!WebAssembly.instantiateStreaming &&
-          (await (await fetch(wasm)).arrayBuffer()))
-      : wasm;
 
-  const output = await (wasmBufferOrModule
-    ? WebAssembly.instantiate(wasmBufferOrModule, imports)
-    : WebAssembly.instantiateStreaming(fetch(wasm as string), imports));
+  if (typeof wasm === "string" && !WebAssembly.instantiateStreaming) {
+    wasm =
+      __maybeNode__ && typeof fetch === "undefined"
+        ? await parseDataUrl(wasm)
+        : await (await fetch(wasm)).arrayBuffer();
+  }
 
-  const { memory, _initialize, ...rest } = ((output as any).instance || output)
-    .exports as IWasmEncoder;
+  const output = (await (typeof wasm === "string"
+    ? WebAssembly.instantiateStreaming(fetch(wasm), imports)
+    : WebAssembly.instantiate(wasm, imports))) as XOR<
+    {
+      instance: WebAssembly.Instance;
+      module: WebAssembly.Module;
+    },
+    WebAssembly.Instance
+  >;
+
+  const { memory, _initialize, ...rest } = ((output.instance || output)
+    .exports as unknown) as IWasmEncoder;
 
   const ret = {
     ...rest,
-    module:
-      wasm instanceof WebAssembly.Module
-        ? wasm
-        : (output as { module?: WebAssembly.Module }).module,
+    module: output.module || wasm,
   };
 
   function emscripten_notify_memory_growth() {

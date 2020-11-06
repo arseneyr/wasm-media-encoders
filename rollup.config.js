@@ -24,12 +24,12 @@ const outputPlugins = [
 ];
 
 const plugins = (maybeNode) => [
-  replace({ __maybeNode__: maybeNode }),
   url({ include: "**/*.wasm", limit: 1024 * 1024 * 8 }),
   json(),
   typescript({
     transformers: ({ program }) => ({ before: [minifyPrivates(program)] }),
   }),
+  replace({ __maybeNode__: maybeNode }),
   babel({ babelHelpers: "bundled" }),
 ];
 

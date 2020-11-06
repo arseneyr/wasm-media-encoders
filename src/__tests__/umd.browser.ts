@@ -1,8 +1,8 @@
 import WasmMediaEncoder from "../../dist/umd/WasmMediaEncoder.min";
-import { enableFetchMocks } from "jest-fetch-mock";
 import { promises as fs } from "fs";
 import { resolve } from "path";
 import pkg from "../../package.json";
+import { enableFetchMocks } from "jest-fetch-mock";
 
 enableFetchMocks();
 

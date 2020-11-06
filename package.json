@@ -40,14 +40,15 @@
     "prepack": "run clean && run build:prod"
   },
   "devDependencies": {
-    "@babel/core": "^7.10.1",
-    "@babel/preset-env": "^7.10.1",
-    "@rollup/plugin-babel": "^5.0.2",
+    "@babel/core": "^7.12.3",
+    "@babel/preset-env": "^7.12.1",
+    "@rollup/plugin-babel": "^5.2.1",
     "@rollup/plugin-json": "^4.0.3",
     "@rollup/plugin-replace": "^2.3.3",
     "@rollup/plugin-url": "^5.0.0",
     "@types/jest": "^25.2.3",
     "@types/node": "^14.14.5",
+    "@types/node-fetch": "^2.5.7",
     "copyfiles": "^2.3.0",
     "cross-env": "^7.0.2",
     "jest": "^26.0.1",
@@ -61,5 +62,8 @@
     "tslib": "^2.0.0",
     "typescript": "^4.0.5",
     "wav": "^1.0.2"
+  },
+  "resolutions": {
+    "node-fetch": "npm:node-fetch@next"
   }
 }
