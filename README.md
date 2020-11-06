@@ -10,8 +10,8 @@ This package aims to fill the gap by compiling the reference LAME and Ogg Vorbis
 
 | Encoder    | JS      | WASM    | Combined + Gzipped |
 | ---------- | ------- | ------- | ------------------ |
-| MP3        | 3.5 KiB | 130 KiB | **66 KiB**         |
-| Ogg Vorbis | 3.5 KiB | 440 KiB | **158 KiB**        |
+| MP3        | 3.3 KiB | 130 KiB | **66 KiB**         |
+| Ogg Vorbis | 3.3 KiB | 440 KiB | **158 KiB**        |
 
 ## Installation
 
@@ -174,11 +174,11 @@ createEncoder(
 
 The first two named exports use inline base-64 encoded WASM binaries (or `fetch()` from unpkg.com in the case of UMD). Tree-shaking on webpack should prevent unused encoders from being included in the final bundle.
 
-| Parameter         | Type                                                        | Description                                                                                                                                                                                                                                                                                              |
-| ----------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `mimeType`        | `String`                                                    | The MIME type of the encoder to create. Supported values are `'audio/mpeg'` (MP3) or `'audio/ogg'` (Ogg Vorbis)                                                                                                                                                                                          |
-| `wasm`            | `String \| ArrayBuffer \| Uint8Array \| WebAssembly.Module` | A URL, [base64 data URL](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs), buffer, or compiled `WebAssembly.Module` representing the WASM binary for the specific `mimeType`. The WASM binaries are included in the package under `wasm-media-encoders/wasm/(mp3\|ogg).wasm`. |
-| `moduleCallback?` | `((module: WebAssembly.Module) => void) \| undefined`       | Optionally, a callback that will be called with the compiled WebAssembly module. You can cache this module client-side and pass it as the `wasm` parameter to avoid fetching and compiling it every time.                                                                                                |
+| Parameter        | Type                                                        | Description                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ---------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mimeType`       | `String`                                                    | The MIME type of the encoder to create. Supported values are `'audio/mpeg'` (MP3) or `'audio/ogg'` (Ogg Vorbis)                                                                                                                                                                                                                                                                                                                               |
+| `wasm`           | `String \| ArrayBuffer \| Uint8Array \| WebAssembly.Module` | A URL, [base64 data URL](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs), buffer, or compiled `WebAssembly.Module` representing the WASM binary for the specific `mimeType`. The WASM binaries are included in the package under `wasm-media-encoders/wasm/(mp3\|ogg).wasm`. Non-data URLs are not supported in Node; use [`node-fetch`](https://github.com/node-fetch/node-fetch) if this is something you need. |
+| `moduleCallback` | `((module: WebAssembly.Module) => void) \| undefined`       | Optionally, a callback that will be called with the compiled WebAssembly module. You can cache this module client-side and pass it as the `wasm` parameter to avoid fetching and compiling it every time.                                                                                                                                                                                                                                     |
 
 ## `WasmMediaEncoder`
 
