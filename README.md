@@ -8,10 +8,12 @@ While some browsers have native encoding using the [`MediaRecorder` API](https:/
 
 This package aims to fill the gap by compiling the reference LAME and Ogg Vorbis encoders to WebAssembly. The resulting package is tiny and fast:
 
-| Encoder    | JS      | WASM    | Combined + Gzipped |
+| Encoder    | JS\*    | WASM    | Combined + Gzipped |
 | ---------- | ------- | ------- | ------------------ |
 | MP3        | 3.3 KiB | 130 KiB | **66 KiB**         |
 | Ogg Vorbis | 3.3 KiB | 440 KiB | **158 KiB**        |
+
+<sub>\*When using ESNext syntax and no polyfills</sub>
 
 ## Installation
 
@@ -62,6 +64,8 @@ createMp3Encoder().then((encoder) => {
   /* Configure and use the encoder */
 });
 ```
+
+If you'd like to use ESNext syntax and transpile yourself, use the `wasm-media-encoders/esnext` path.
 
 ## Example usage
 

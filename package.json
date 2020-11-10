@@ -1,6 +1,6 @@
 {
   "name": "wasm-media-encoders",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "main": "dist/index.js",
   "module": "dist/es/index.js",
   "browser": "dist/browser/index.js",
