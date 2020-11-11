@@ -10,9 +10,10 @@
 
 typedef struct _CFG
 {
-  float *input_buffer;
-  float *input_buffer_ret[2];
-  unsigned int input_buffer_length;
+  float *pcm_buffer;
+  float *pcm_buffer_ret[2];
+  unsigned int pcm_buffer_length;
+  unsigned int channel_count;
   unsigned char *ogg_buffer;
   unsigned int ogg_buffer_size;
   unsigned int ogg_buffer_offset;
@@ -32,17 +33,25 @@ typedef struct _PARAMS
 void write_blocks(PCFG cfg);
 void stream_write(PCFG cfg, bool flush);
 
+void resize_pcm(PCFG cfg, unsigned int num_samples)
+{
+  if (!cfg->pcm_buffer || num_samples > cfg->pcm_buffer_length)
+  {
+
+    cfg->pcm_buffer_length = num_samples;
+    cfg->pcm_buffer = realloc(cfg->pcm_buffer, cfg->pcm_buffer_length * cfg->channel_count * sizeof(*cfg->pcm_buffer));
+    for (unsigned int i = 0; i < cfg->channel_count; ++i)
+    {
+      cfg->pcm_buffer_ret[i] = cfg->pcm_buffer + i * cfg->pcm_buffer_length;
+    }
+  }
+}
+
 EMSCRIPTEN_KEEPALIVE
 float **enc_get_pcm(PCFG cfg, unsigned int num_samples)
 {
-  if (num_samples * 2 > cfg->input_buffer_length)
-  {
-    cfg->input_buffer_length = num_samples * 2;
-    cfg->input_buffer = realloc(cfg->input_buffer, cfg->input_buffer_length * sizeof(*cfg->input_buffer));
-    cfg->input_buffer_ret[0] = cfg->input_buffer;
-    cfg->input_buffer_ret[1] = cfg->input_buffer + num_samples;
-  }
-  return cfg->input_buffer_ret;
+  resize_pcm(cfg, num_samples);
+  return cfg->pcm_buffer_ret;
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -64,9 +73,9 @@ void enc_free(PCFG cfg)
     {
       free(cfg->ogg_buffer);
     }
-    if (cfg->input_buffer)
+    if (cfg->pcm_buffer)
     {
-      free(cfg->input_buffer);
+      free(cfg->pcm_buffer);
     }
     free(cfg);
   }
@@ -89,6 +98,7 @@ PCFG enc_init(unsigned int sample_rate,
   {
     goto Cleanup;
   }
+  cfg->channel_count = channel_count;
 
   vorbis_info_init(&cfg->vi);
   if (vorbis_encode_init_vbr(&cfg->vi, channel_count, sample_rate, params->vbr_quality * 0.1) < 0)
@@ -106,14 +116,7 @@ PCFG enc_init(unsigned int sample_rate,
   {
     goto Cleanup;
   }
-  cfg->input_buffer_length = 64 * 1024;
-  cfg->input_buffer = malloc(cfg->input_buffer_length * sizeof(*cfg->input_buffer));
-  if (cfg->input_buffer == NULL)
-  {
-    goto Cleanup;
-  }
-  cfg->input_buffer_ret[0] = cfg->input_buffer;
-  cfg->input_buffer_ret[1] = cfg->input_buffer + cfg->input_buffer_length / 2;
+  resize_pcm(cfg, WROTE_BUFFER_STEP_SIZE);
   {
     ogg_packet header;
     ogg_packet header_comm;
@@ -147,15 +150,20 @@ int enc_encode(PCFG cfg, unsigned int num_samples)
 
   while (current_sample < num_samples)
   {
-    float **vorbis_buffer = vorbis_analysis_buffer(&cfg->vd, WROTE_BUFFER_STEP_SIZE);
+    unsigned int current_num_samples = MIN(WROTE_BUFFER_STEP_SIZE, num_samples - current_sample);
+    float **vorbis_buffer = vorbis_analysis_buffer(&cfg->vd, current_num_samples);
+    for (unsigned int i = 0; i < cfg->channel_count; ++i)
+    {
+      memmove(vorbis_buffer[i], cfg->pcm_buffer_ret[i] + current_sample, current_num_samples * sizeof(**vorbis_buffer));
+    }
 
     // This function could allocate on order num_samples
     // of stack space in _preextrapolate_helper.
-    vorbis_analysis_wrote(&cfg->vd, MIN(WROTE_BUFFER_STEP_SIZE, num_samples - current_sample));
-    current_sample += WROTE_BUFFER_STEP_SIZE;
+    vorbis_analysis_wrote(&cfg->vd, current_num_samples);
+    write_blocks(cfg);
+    current_sample += current_num_samples;
   }
 
-  write_blocks(cfg);
   ret = cfg->ogg_buffer_offset;
   cfg->ogg_buffer_offset = 0;
   return ret;

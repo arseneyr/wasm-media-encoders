@@ -65,4 +65,19 @@ describe.each([
       Uint8Array
     );
   });
+  test("encode large white noise", async () => {
+    const input = Array.from({ length: 2 }, () =>
+      Float32Array.from({ length: 48000 * 100 }, () => Math.random())
+    );
+    const encoder = await createEncoder(mimeType, wasm);
+    encoder.configure({
+      channels: 2,
+      sampleRate: 48000,
+    });
+    const t0 = process.hrtime.bigint();
+    expect(encoder.encode(input)).toBeInstanceOf(Uint8Array);
+    console.log(
+      `${mimeType} took ${(process.hrtime.bigint() - t0) / 1000000n}ms`
+    );
+  });
 });
