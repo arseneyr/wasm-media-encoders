@@ -1,6 +1,6 @@
 # wasm-media-encoders
 
-The LAME MP3 and Ogg Vorbis audio encoders, compiled to lean, mean WebAssembly and ready for use in the browser or Node.
+The LAME MP3 and Ogg Vorbis audio encoders, compiled to minimal WebAssembly and ready for use in the browser or Node.
 
 ## Why?
 
@@ -29,7 +29,7 @@ npm install wasm-media-encoders
 
 ## Getting started
 
-With webpack:
+With webpack or `.mjs` file in Node 12+:
 
 ```js
 import { createMp3Enoder, createOggEncoder } from "wasm-media-encoders";
@@ -56,7 +56,7 @@ With a `<script>` tag:
 </script>
 ```
 
-With Node:
+Using CommonJS in Node:
 
 ```js
 const { createMp3Encoder } = require("wasm-media-encoders");
@@ -131,12 +131,12 @@ import { createEncoder } from "wasm-media-encoders";
 import wasm from "file-loader!wasm-media-encoders/wasm/mp3.wasm";
 
 createEncoder("audio/mpeg", wasm).then((encoder) => {
-  /* Now mp3.wasm will be copied to output dir by webpack and fetch()ed at runtime*/
+  /* Now mp3.wasm will be copied to output dir by webpack and fetch()ed at runtime */
 });
 ```
 
 ```js
-//webpack.config.js
+// webpack.config.js
 
 module.exports = {
   // ...
@@ -153,7 +153,7 @@ module.exports = {
 
 ### Webpack v5
 
-Using asset modules and [URL assets](https://webpack.js.org/guides/asset-modules/#url-assets) is very easy in webpack v5:
+Using asset modules and [URL assets](https://webpack.js.org/guides/asset-modules/#url-assets) is easy in webpack v5:
 
 ```js
 import { createEncoder } from "wasm-media-encoders";
@@ -162,7 +162,7 @@ createEncoder(
   "audio/mpeg",
   new URL("wasm-media-encoder/wasm/mp3", import.meta.url)
 ).then((encoder) => {
-  /* Now mp3.wasm will be copied to output dir by webpack and fetch()ed at runtime*/
+  /* Now mp3.wasm will be copied to output dir by webpack and fetch()ed at runtime */
 });
 ```
 
