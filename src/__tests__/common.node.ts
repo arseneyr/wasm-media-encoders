@@ -65,9 +65,9 @@ describe.each([
       Uint8Array
     );
   });
-  test("encode large white noise", async () => {
+  test("encode large white noise buffer", async () => {
     const input = Array.from({ length: 2 }, () =>
-      Float32Array.from({ length: 48000 * 100 }, () => Math.random())
+      Float32Array.from({ length: 10 * 1000 * 1000 }, () => Math.random())
     );
     const encoder = await createEncoder(mimeType, wasm);
     encoder.configure({

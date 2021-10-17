@@ -129,7 +129,7 @@ Cleanup:
 EMSCRIPTEN_KEEPALIVE
 int enc_encode(PCFG cfg, unsigned int num_samples)
 {
-  if (MP3_BUFFER_SIZE(num_samples) > cfg->mp3_buffer_size)
+  while (MP3_BUFFER_SIZE(num_samples) > cfg->mp3_buffer_size)
   {
     cfg->mp3_buffer_size *= 2;
     cfg->mp3_buffer = realloc(cfg->mp3_buffer, cfg->mp3_buffer_size);
