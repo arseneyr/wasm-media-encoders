@@ -1,3 +1,4 @@
 {
-	"type": "commonjs"
+	"type": "commonjs",
+	"//": "workaround for https://github.com/emscripten-core/emscripten/issues/17431"
 }
