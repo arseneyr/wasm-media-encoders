@@ -10,9 +10,6 @@
 		},
 		"ghcr.io/devcontainers/features/git:1": {
 			"version": "os-provided"
-		},
-		"ghcr.io/devcontainers/features/node:1": {
-			"version": "lts"
 		}
 	},
 	"customizations": {
@@ -25,5 +22,6 @@
 			]
 		}
 	},
-	"remoteUser": "emscripten"
+	"remoteUser": "emscripten",
+	"onCreateCommand": "npm --prefix ~/.local install -g yarn"
 }
