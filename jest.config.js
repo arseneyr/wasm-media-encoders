@@ -1,11 +1,8 @@
 const common = {
-  preset: "ts-jest/presets/js-with-ts",
+  preset: "ts-jest",
   globals: {
     "ts-jest": {
-      tsConfig: {
-        allowJs: true,
-        esModuleInterop: true,
-      },
+      tsconfig: "tsconfig.test.json",
     },
   },
 };

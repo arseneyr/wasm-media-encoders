@@ -77,7 +77,7 @@ describe.each([
     const t0 = process.hrtime.bigint();
     expect(encoder.encode(input)).toBeInstanceOf(Uint8Array);
     console.log(
-      `${mimeType} took ${(process.hrtime.bigint() - t0) / 1000000n}ms`
+      `${mimeType} took ${(process.hrtime.bigint() - t0) / BigInt(1000000)}ms`
     );
   });
 });
