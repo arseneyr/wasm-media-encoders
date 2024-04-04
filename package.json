@@ -32,14 +32,8 @@
     "node": ">= 10"
   },
   "scripts": {
-    "build:encoders": "rimraf \"src/wasm/build/* wasm\" && BUILD_DIR=$(pwd)src/wasm/build make -C src/wasm && copyfiles --flat src/wasm/build/*.wasm wasm",
-    "clean:encoders": "make -C src/wasm clean",
-    "build:js": "rimraf \"dist/**/*\" && rollup -c",
-    "build": "cross-env-shell NODE_ENV=development \"run build:encoders && run build:js\"",
-    "build:prod": "cross-env-shell NODE_ENV=production \"run build:encoders && run build:js\"",
-    "clean": "rimraf \"dist src/wasm/dist wasm\" && yarn clean:encoders",
-    "test": "jest",
-    "prepack": "run clean && run build:prod"
+    "test": "make test",
+    "prepack": "make clean && make prod"
   },
   "dependencies": {
     "@babel/runtime": "^7.12.5"

@@ -1,6 +1,8 @@
 /dist
 /wasm
-/src/wasm/build/*.wasm.map
+/src/wasm/build-dev
+
+/.sentinel
 
 .DS_Store
 .env.local
