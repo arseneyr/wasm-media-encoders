@@ -14,14 +14,14 @@ export default {
       displayName: "browser",
       testEnvironment: "jsdom",
       globals: { ...common.globals, __maybeNode__: false },
-      testPathIgnorePatterns: ["/node_modules/", ".node."],
+      testRegex: "/__tests__/.*(browser|common)\\.ts$",
     },
     {
       ...common,
       displayName: "node",
       testEnvironment: "node",
       globals: { ...common.globals, __maybeNode__: true },
-      testPathIgnorePatterns: ["/node_modules/", ".browser."],
+      testRegex: "/__tests__/.*(node|common)\\.ts$",
     },
   ],
 };
