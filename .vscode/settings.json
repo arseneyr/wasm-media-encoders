@@ -8,5 +8,8 @@
   },
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "npm.packageManager": "yarn",
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "[json][jsonc][typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
