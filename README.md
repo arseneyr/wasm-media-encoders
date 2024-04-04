@@ -223,6 +223,36 @@ Encodes PCM samples and returns a `Uint8Array`. You may call this method repeate
 
 Flushes the encoder and returns the last few encoded samples. May return a `Uint8Array` of length zero. **The returned `Uint8Array` is owned by the encoder and MUST be copied before any other encoder methods are called.**
 
+## Building
+
+### Dev Container
+
+The easiest way to get started is by creating a **development container** using the included `.devcontainer/devcontainer.json`. Tools that support dev containers can be found [here](https://containers.dev/supporting). Development containers require a Docker or Podman installation. Full instructions for Visual Studio Code can be found [here](https://code.visualstudio.com/docs/devcontainers/containers).
+
+### Manually setting up environment
+
+To manually set up a development environment, you must install the following prerequisites:
+
+1. [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html#installation-instructions-using-the-emsdk-recommended) (v2.0.8)
+
+   _Note: The SDK should also include Node 12_
+
+2. _(Optional)_ Yarn
+
+   ```
+   npm i -g yarn
+   ```
+
+   The correct version of yarn is checked into the repo under `.yarn/releases` and is not required to build. However installing yarn will make CLI operations easier.
+
+### Building
+
+To create a release build:
+
+```
+make
+```
+
 ## License
 
 This project is licensed under the terms of the **MIT** license.
