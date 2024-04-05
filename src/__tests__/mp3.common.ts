@@ -51,6 +51,8 @@ test.each([
   { vbrQuality: 5 },
   { bitrate: 8 as const },
   { bitrate: 128 as const },
+  { outputSampleRate: 44100 as const },
+  { outputSampleRate: 8000 as const },
 ])("mp3 %p", async (params) => {
   encoder.configure({
     channels: format.channels,
@@ -91,6 +93,13 @@ test("invalid params", () => {
       channels: format.channels,
       sampleRate: format.sampleRate,
       bitrate: 1 as any,
+    })
+  ).toThrowError();
+  expect(() =>
+    encoder.configure({
+      channels: format.channels,
+      sampleRate: format.sampleRate,
+      outputSampleRate: 5 as any,
     })
   ).toThrowError();
 });

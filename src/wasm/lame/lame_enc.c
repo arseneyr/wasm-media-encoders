@@ -24,6 +24,7 @@ typedef struct __attribute__((packed)) _PARAMS
   COMMON_PARAMS c;
   unsigned int bitrate;
   float vbr_quality;
+  unsigned int out_sample_rate;
 } PARAMS, *PPARAMS;
 
 EMSCRIPTEN_KEEPALIVE
@@ -102,6 +103,7 @@ PCFG enc_init(PPARAMS params)
   id3tag_init(cfg->gfp);
   lame_set_num_channels(cfg->gfp, params->c.in_channel_count);
   lame_set_in_samplerate(cfg->gfp, params->c.in_sample_rate);
+  lame_set_out_samplerate(cfg->gfp, params->out_sample_rate);
   lame_set_bWriteVbrTag(cfg->gfp, 0);
   if (params->vbr_quality >= 0)
   {
