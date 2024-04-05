@@ -19,7 +19,8 @@
 				"esbenp.prettier-vscode",
 				"arcanis.vscode-zipfs",
 				"ms-vscode.makefile-tools",
-				"ms-vscode.cpptools-extension-pack"
+				"ms-vscode.cpptools-extension-pack",
+				"dtsvet.vscode-wasm"
 			]
 		}
 	},
