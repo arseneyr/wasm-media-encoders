@@ -2,33 +2,56 @@ all: prod
 
 .PHONY: all dev prod js wasm-dev wasm-prod test clean
 
-.SECONDARY:
-
 MAKEFLAGS += --no-builtin-rules
 
 wasm_path := src/wasm
 js_path := src
 js_build_path := dist
 wasm_publish_path := wasm
+prod_subpath := build
+dev_subpath := build-dev
 
-wasm_build_path := $(wasm_path)/build
-wasm_dev_path := $(wasm_path)/build-dev
+wasm_prod_path := $(wasm_path)/$(prod_subpath)
+wasm_dev_path := $(wasm_path)/$(dev_subpath)
 
 lame_src_path := $(wasm_path)/lame/lame-src
 ogg_src_path := $(wasm_path)/vorbis/ogg-src
 vorbis_src_path := $(wasm_path)/vorbis/vorbis-src
 
+wasm_ogg_deps := \
+	$(ogg_src_path)/%/lib/libogg.a \
+	$(vorbis_src_path)/%/lib/libvorbis.a \
+	$(vorbis_src_path)/%/lib/libvorbisenc.a
+wasm_lame_deps := $(lame_src_path)/%/lib/libmp3lame.a
+wasm_common_deps := $(wasm_path)/common_params.h package.json
+
+define make_prod_and_dev
+	$(foreach dep,$(1),$(subst %,$(prod_subpath),$(dep)) $(subst %,$(dev_subpath),$(dep)))
+endef
+
+wasm_all_deps := $(call make_prod_and_dev,$(wasm_lame_deps) $(wasm_ogg_deps))
+wasm_all_deps_dirs := $(call make_prod_and_dev,$(lame_src_path)/%/ $(ogg_src_path)/%/ $(vorbis_src_path)/%/)
+
+wasm_output := ogg.wasm mp3.wasm
+wasm_full_output := $(wasm_output:.wasm=_full.wasm)
+
 yarn := node .yarn/releases/yarn-berry.cjs
+package_version_define := -DNODE_PACKAGE_VERSION=\"`npm -s run env printf '$$npm_package_version'`\"
 
 js_output := index.js es/index.js esnext/index.mjs browser/index.js umd/WasmMediaEncoder.min.js
 js_output := $(addprefix $(js_build_path)/,$(js_output))
 
-package_version_define := -DNODE_PACKAGE_VERSION=\"`npm -s run env printf '$$npm_package_version'`\"
+.SECONDARY: \
+	$(wasm_all_deps) \
+	$(wasm_all_deps_dirs) \
+	$(wasm_prod_path)/ \
+	$(wasm_build_path)/ \
+	$(wasm_publish_path) \
+	$(js_build_path)
 
-wasm_output := ogg.wasm mp3.wasm
-
-# Setting .SECONDARY should obviate this line but for some reason it doesn't...
-.INTERMEDIATE: $(wasm_dev_path)/ogg_full.wasm.map $(wasm_dev_path)/mp3_full.wasm.map 
+.INTERMEDIATE: \
+	$(call make_prod_and_dev,$(addprefix $(wasm_path)/%/,$(wasm_full_output))) \
+	$(addprefix $(wasm_dev_path)/,$(wasm_full_output:=.map))
 
 wasm-dev : emcc_flags := -O0 -g
 wasm-dev : emcc_linker_flags := -O0 -g4 --source-map-base file:/$(abspath $(wasm_dev_path))
@@ -38,7 +61,7 @@ wasm-prod : emcc_linker_flags := -Oz -flto -Wl,--strip-all
 prod : export NODE_ENV := production
 
 wasm-dev: $(addprefix $(wasm_dev_path)/,$(wasm_output) $(wasm_output:=.map))
-wasm-prod: $(addprefix $(wasm_build_path)/,$(wasm_output)) $(addprefix $(wasm_publish_path)/,$(wasm_output))
+wasm-prod: $(addprefix $(wasm_prod_path)/,$(wasm_output)) $(addprefix $(wasm_publish_path)/,$(wasm_output))
 js: $(js_output)
 
 dev: wasm-dev js
@@ -47,7 +70,7 @@ prod: wasm-prod js
 test: prod
 	$(yarn) run jest
 
-$(wasm_publish_path)/%.wasm : $(wasm_build_path)/%.wasm | $(wasm_publish_path)
+$(wasm_publish_path)/%.wasm : $(wasm_prod_path)/%.wasm | $(wasm_publish_path)
 	cp $< $@
 
 $(wasm_publish_path) $(js_build_path):
@@ -88,25 +111,21 @@ $(wasm_path)/%/ogg_full.wasm $(wasm_path)/%/ogg_full.wasm.map : includes = $(ogg
 $(wasm_path)/%/mp3_full.wasm $(wasm_path)/%/mp3_full.wasm.map : includes = $(lame_src_path)/$*/include
 
 $(wasm_path)/%/ogg_full.wasm $(wasm_path)/%/ogg_full.wasm.map : \
-	$(ogg_src_path)/%/lib/libogg.a \
-	$(vorbis_src_path)/%/lib/libvorbis.a \
-	$(vorbis_src_path)/%/lib/libvorbisenc.a \
+	$(wasm_ogg_deps) \
+	$(wasm_common_deps) \
 	$(wasm_path)/vorbis/vorbis_enc.c \
-	$(wasm_path)/common_params.h \
-	package.json \
 	| $(wasm_path)/%/
 	$(build_full_wasm)
 
 $(wasm_path)/%/mp3_full.wasm $(wasm_path)/%/mp3_full.wasm.map : \
-	$(lame_src_path)/%/lib/libmp3lame.a \
+	$(wasm_lame_deps) \
+	$(wasm_common_deps) \
 	$(wasm_path)/lame/lame_enc.c \
-	$(wasm_path)/common_params.h \
-	package.json \
 	| $(wasm_path)/%/
 	$(build_full_wasm)
 
 $(wasm_dev_path)/%.wasm.map : $(wasm_dev_path)/%_full.wasm.map
-	mv $< $@
+	cp $< $@
 
 $(ogg_src_path)/%/lib/libogg.a: | $(ogg_src_path)/%/
 	cd $(ogg_src_path)/$* && \
@@ -145,8 +164,8 @@ $(js_output) : .sentinel ;
 	tsconfig.json \
 	package.json \
 	yarn.lock \
-	$(wasm_build_path)/ogg.wasm \
-	$(wasm_build_path)/mp3.wasm \
+	$(wasm_prod_path)/ogg.wasm \
+	$(wasm_prod_path)/mp3.wasm \
 	| $(js_build_path)
 
 	$(yarn) run rollup -c
@@ -156,7 +175,7 @@ clean:
 	git -C $(ogg_src_path) clean -fxd && \
 	git -C $(vorbis_src_path) clean -fxd && \
 	git -C $(lame_src_path) clean -fxd && \
-	rm -rf $(wasm_build_path) && \
+	rm -rf $(wasm_prod_path) && \
 	rm -rf $(wasm_dev_path) && \
 	rm -rf $(wasm_publish_path) && \
 	rm -rf $(js_build_path)
