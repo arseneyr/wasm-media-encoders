@@ -61,6 +61,21 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
     return this.module.HEAPU8.subarray(ptr, ptr + size);
   }
 
+  private get_common_params(params: BaseEncoderParams) {
+    switch (params.channels) {
+      case 1:
+      case 2:
+        break;
+      default:
+        throw new Error(`Invalid channel count ${params.channels}`);
+    }
+    if (typeof params.sampleRate != "number") {
+      throw new Error(`Invalid sample rate ${params.sampleRate}`);
+    }
+
+    return new Uint32Array([params.channels, params.sampleRate]);
+  }
+
   private constructor(
     public readonly mimeType: MimeType,
     private readonly module: Unpromisify<ReturnType<typeof EmscriptenModule>>,
@@ -88,19 +103,22 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
       this.module.enc_free(this.ref);
       this.ref = 0;
     }
+    const commonParamBuffer = this.get_common_params(params);
     const paramBuffer = this.parseParams(params);
-    const paramAlloc = this.module.malloc(paramBuffer.byteLength);
+    const paramAlloc = this.module.malloc(
+      commonParamBuffer.byteLength + paramBuffer.byteLength
+    );
     if (!paramAlloc) {
       throw new Error("Failed to allocate parameter buffer");
     }
-    this.module.HEAP32.set(paramBuffer, paramAlloc >> 2);
+    this.module.HEAP32.set(commonParamBuffer, paramAlloc >> 2);
+    this.module.HEAP32.set(
+      paramBuffer,
+      (paramAlloc + commonParamBuffer.byteLength) >> 2
+    );
     this.channelCount = params.channels;
     try {
-      this.ref = this.module.enc_init(
-        params.sampleRate,
-        params.channels,
-        paramAlloc
-      );
+      this.ref = this.module.enc_init(paramAlloc);
       if (!this.ref) {
         throw new Error("Encoder initialization failed!");
       }

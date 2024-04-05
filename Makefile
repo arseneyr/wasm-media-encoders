@@ -69,7 +69,7 @@ $(lame_src_path)/%/lib/libmp3lame.a: | $(lame_src_path)/%/
 	emmake make install
 
 define build_full_wasm
-	emcc $^ \
+	emcc $(filter %.c %.a,$^) \
 	  -DNDEBUG $(emcc_linker_flags) \
 		$(addprefix -I,$(includes)) \
 		--no-entry \
@@ -88,12 +88,14 @@ $(wasm_path)/%/ogg_full.wasm $(wasm_path)/%/ogg_full.wasm.map : \
 	$(vorbis_src_path)/%/lib/libvorbis.a \
 	$(vorbis_src_path)/%/lib/libvorbisenc.a \
 	$(wasm_path)/vorbis/vorbis_enc.c \
+	$(wasm_path)/common_params.h \
 	| $(wasm_path)/%/
 	$(build_full_wasm)
 
 $(wasm_path)/%/mp3_full.wasm $(wasm_path)/%/mp3_full.wasm.map : \
 	$(lame_src_path)/%/lib/libmp3lame.a \
 	$(wasm_path)/lame/lame_enc.c \
+	$(wasm_path)/common_params.h \
 	| $(wasm_path)/%/
 	$(build_full_wasm)
 

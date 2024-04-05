@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <emscripten.h>
+#include "../common_params.h"
 
 #define DEFAULT_OGG_BUFFER_SIZE (1024 * 1024)
 #define WROTE_BUFFER_STEP_SIZE (1024 * 64)
@@ -23,8 +24,9 @@ typedef struct _CFG
   ogg_stream_state os;
 } CFG, *PCFG;
 
-typedef struct _PARAMS
+typedef struct __attribute__((packed)) _PARAMS
 {
+  COMMON_PARAMS c;
   float vbr_quality;
   int serialno;
 
@@ -82,13 +84,11 @@ void enc_free(PCFG cfg)
 }
 
 EMSCRIPTEN_KEEPALIVE
-PCFG enc_init(unsigned int sample_rate,
-              unsigned int channel_count,
-              PPARAMS params)
+PCFG enc_init(PPARAMS params)
 {
   PCFG cfg = NULL;
 
-  if (channel_count > 2)
+  if (params->c.in_channel_count > 2)
   {
     goto Cleanup;
   }
@@ -98,10 +98,10 @@ PCFG enc_init(unsigned int sample_rate,
   {
     goto Cleanup;
   }
-  cfg->channel_count = channel_count;
+  cfg->channel_count = params->c.in_channel_count;
 
   vorbis_info_init(&cfg->vi);
-  if (vorbis_encode_init_vbr(&cfg->vi, channel_count, sample_rate, params->vbr_quality * 0.1) < 0)
+  if (vorbis_encode_init_vbr(&cfg->vi, params->c.in_channel_count, params->c.in_sample_rate, params->vbr_quality * 0.1) < 0)
   {
     goto Cleanup;
   }

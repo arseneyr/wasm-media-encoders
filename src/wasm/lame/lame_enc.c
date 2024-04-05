@@ -1,6 +1,7 @@
 #include <lame/lame.h>
 #include <stdlib.h>
 #include <emscripten.h>
+#include "../common_params.h"
 
 // 30 seconds of audio at 48kHz
 #define MP3_BUFFER_SIZE(num_samples) (1.25 * (num_samples) + 7200)
@@ -18,8 +19,9 @@ typedef struct _CFG
   lame_global_flags *gfp;
 } CFG, *PCFG;
 
-typedef struct _PARAMS
+typedef struct __attribute__((packed)) _PARAMS
 {
+  COMMON_PARAMS c;
   unsigned int bitrate;
   float vbr_quality;
 } PARAMS, *PPARAMS;
@@ -70,12 +72,10 @@ void enc_free(PCFG cfg)
 }
 
 EMSCRIPTEN_KEEPALIVE
-PCFG enc_init(unsigned int sample_rate,
-              unsigned int channel_count,
-              PPARAMS params)
+PCFG enc_init(PPARAMS params)
 {
   PCFG cfg = NULL;
-  if (channel_count > 2 || (params->vbr_quality < 0) == (params->bitrate == 0))
+  if (params->c.in_channel_count > 2 || (params->vbr_quality < 0) == (params->bitrate == 0))
   {
     goto Cleanup;
   }
@@ -85,12 +85,12 @@ PCFG enc_init(unsigned int sample_rate,
   {
     goto Cleanup;
   }
-  cfg->channel_count = channel_count;
+  cfg->channel_count = params->c.in_channel_count;
   cfg->mp3_buffer_size = DEFAULT_MP3_SIZE;
   cfg->mp3_buffer =
       malloc(cfg->mp3_buffer_size);
 
-  cfg->pcm_sample_count = DEFAULT_PCM_SAMPLE_COUNT * channel_count;
+  cfg->pcm_sample_count = DEFAULT_PCM_SAMPLE_COUNT * params->c.in_channel_count;
   cfg->pcm = malloc(cfg->pcm_sample_count * sizeof(*cfg->pcm));
   cfg->pcm_ret[0] = cfg->pcm;
   cfg->pcm_ret[1] = cfg->pcm + cfg->pcm_sample_count / 2;
@@ -100,8 +100,8 @@ PCFG enc_init(unsigned int sample_rate,
     goto Cleanup;
   }
   id3tag_init(cfg->gfp);
-  lame_set_num_channels(cfg->gfp, channel_count);
-  lame_set_in_samplerate(cfg->gfp, sample_rate);
+  lame_set_num_channels(cfg->gfp, params->c.in_channel_count);
+  lame_set_in_samplerate(cfg->gfp, params->c.in_sample_rate);
   lame_set_bWriteVbrTag(cfg->gfp, 0);
   if (params->vbr_quality >= 0)
   {

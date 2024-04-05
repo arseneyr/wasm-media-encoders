@@ -1,7 +1,7 @@
 import { XOR } from "../utils";
 
 interface IWasmEncoder {
-  enc_init(sample_rate: number, channel_count: number, params: number): number;
+  enc_init(params: number): number;
   enc_encode(cfg: number, num_samples: number): number;
   enc_flush(cfg: number): number;
   enc_free(cfg: number): void;
@@ -61,8 +61,8 @@ export default async function (
     WebAssembly.Instance
   >;
 
-  const { memory, _initialize, ...rest } = ((output.instance || output)
-    .exports as unknown) as IWasmEncoder;
+  const { memory, _initialize, ...rest } = (output.instance || output)
+    .exports as unknown as IWasmEncoder;
 
   const ret = {
     ...rest,
