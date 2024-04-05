@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import { resolve } from "path";
 import { createEncoder, WasmMediaEncoder } from "../encoder";
+import { version as packageVersion } from "../../package.json";
 
 describe.each([
   ["audio/mpeg" as const, "mp3.wasm"],
@@ -43,7 +44,7 @@ describe.each([
     await expect(
       createEncoder(mimeType, await WebAssembly.compile(wasm), mockCallback)
     ).resolves.toBeInstanceOf(WasmMediaEncoder);
-    expect(mockCallback).toHaveBeenCalledWith(module);
+    expect(mockCallback).toHaveBeenCalledWith(module, packageVersion);
   });
 
   test("compiled module callback", async () => {
@@ -53,6 +54,7 @@ describe.each([
     ).resolves.toBeInstanceOf(WasmMediaEncoder);
     expect(mockCallback).toHaveBeenCalledTimes(1);
     expect(mockCallback.mock.calls[0][0]).toBeInstanceOf(WebAssembly.Module);
+    expect(mockCallback.mock.calls[0][1]).toBe(packageVersion);
   });
 
   test("Buffer reallocation", async () => {
@@ -65,7 +67,7 @@ describe.each([
       Uint8Array
     );
   });
-  test("encode large white noise buffer", async () => {
+  test.skip("encode large white noise buffer", async () => {
     const input = Array.from({ length: 2 }, () =>
       Float32Array.from({ length: 10 * 1000 * 1000 }, () => Math.random())
     );

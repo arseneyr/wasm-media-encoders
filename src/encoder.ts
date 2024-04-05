@@ -1,6 +1,7 @@
 import { Mp3Params } from "./wasm/lame/params";
 import { OggParams } from "./wasm/vorbis/params";
 import EmscriptenModule from "./wasm/module";
+import { version as packageVersion } from "../package.json";
 
 interface BaseEncoderParams {
   channels: 1 | 2;
@@ -29,6 +30,11 @@ type EncoderParams<T extends keyof ConfigMap> = Parameters<
 
 export type SupportedMimeTypes = keyof ConfigMap;
 type Unpromisify<T> = T extends PromiseLike<infer U> ? U : T;
+
+type EncoderModuleCallback = (
+  module: WebAssembly.Module,
+  version: string
+) => unknown;
 
 const encoderConfigs: ConfigMap = {
   [Mp3Params.mimeType]: Mp3Params,
@@ -76,25 +82,45 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
     return new Uint32Array([params.channels, params.sampleRate]);
   }
 
+  private get_string(ptr: number) {
+    const nullBytePtr = this.module.HEAPU8.indexOf(0, ptr);
+    const stringBuffer = this.module.HEAPU8.slice(ptr, nullBytePtr);
+    return String.fromCharCode(...stringBuffer);
+  }
+
   private constructor(
     public readonly mimeType: MimeType,
     private readonly module: Unpromisify<ReturnType<typeof EmscriptenModule>>,
     private readonly parseParams: (
       params: EncoderParams<MimeType>
-    ) => Int32Array
-  ) {}
+    ) => Int32Array,
+    encoderCallback?: EncoderModuleCallback
+  ) {
+    if (!this.module.version) {
+      throw new Error(
+        `JS and WASM version mismatch. JS version: ${packageVersion} WASM version: unknown (< 0.7.0)`
+      );
+    }
+    const wasmModuleVersion = this.get_string(this.module.version());
+    if (packageVersion != wasmModuleVersion) {
+      throw new Error(
+        `JS and WASM version mismatch. JS version: ${packageVersion} WASM version: ${wasmModuleVersion}`
+      );
+    }
+    encoderCallback?.(module.module, wasmModuleVersion);
+  }
 
   public static async create<T extends SupportedMimeTypes>(
     mimeType: T,
     wasm: string | ArrayBuffer | Uint8Array | WebAssembly.Module,
-    moduleCallback?: (module: WebAssembly.Module) => void
+    moduleCallback?: EncoderModuleCallback
   ): Promise<WasmMediaEncoder<T>> {
     const em_module = await EmscriptenModule(wasm);
-    em_module.module && moduleCallback?.(em_module.module);
     return new WasmMediaEncoder(
       mimeType,
       em_module,
-      encoderConfigs[mimeType].parseParams
+      encoderConfigs[mimeType].parseParams,
+      moduleCallback
     );
   }
 

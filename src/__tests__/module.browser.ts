@@ -2,6 +2,7 @@ import { promises as fs } from "fs";
 import { resolve } from "path";
 import { createEncoder, WasmMediaEncoder } from "../encoder";
 import { enableFetchMocks } from "jest-fetch-mock";
+import { version as packageVersion } from "../../package.json";
 
 enableFetchMocks();
 
@@ -64,7 +65,7 @@ describe.each([
       createEncoder(mimeType, await WebAssembly.compile(wasm), mockCallback)
     ).resolves.toBeInstanceOf(WasmMediaEncoder);
     expect(fetchMock).toHaveBeenCalledTimes(0);
-    expect(mockCallback).toHaveBeenCalledWith(module);
+    expect(mockCallback).toHaveBeenCalledWith(module, packageVersion);
   });
 
   test("compiled module callback", async () => {
@@ -74,6 +75,7 @@ describe.each([
     ).resolves.toBeInstanceOf(WasmMediaEncoder);
     expect(mockCallback).toHaveBeenCalledTimes(1);
     expect(mockCallback.mock.calls[0][0]).toBeInstanceOf(WebAssembly.Module);
+    expect(mockCallback.mock.calls[0][1]).toBe(packageVersion);
   });
 
   test("Buffer reallocation", async () => {

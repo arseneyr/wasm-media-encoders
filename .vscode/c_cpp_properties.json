@@ -8,7 +8,9 @@
                 "${workspaceFolder}/src/wasm/vorbis/vorbis-src/build/include",
                 "/emsdk/upstream/emscripten/system/include"
             ],
-            "defines": [],
+            "defines": [
+                "NODE_PACKAGE_VERSION=\"\""
+            ],
             "cStandard": "c17",
             "cppStandard": "c++17",
             "compilerPath": "/usr/bin/gcc"

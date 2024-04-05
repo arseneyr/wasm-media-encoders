@@ -23,6 +23,8 @@ yarn := node .yarn/releases/yarn-berry.cjs
 js_output := index.js es/index.js esnext/index.mjs browser/index.js umd/WasmMediaEncoder.min.js
 js_output := $(addprefix $(js_build_path)/,$(js_output))
 
+package_version_define := -DNODE_PACKAGE_VERSION=\"`npm -s run env printf '$$npm_package_version'`\"
+
 wasm_output := ogg.wasm mp3.wasm
 
 # Setting .SECONDARY should obviate this line but for some reason it doesn't...
@@ -70,7 +72,9 @@ $(lame_src_path)/%/lib/libmp3lame.a: | $(lame_src_path)/%/
 
 define build_full_wasm
 	emcc $(filter %.c %.a,$^) \
-	  -DNDEBUG $(emcc_linker_flags) \
+	  -DNDEBUG \
+		$(package_version_define) \
+		$(emcc_linker_flags) \
 		$(addprefix -I,$(includes)) \
 		--no-entry \
 		-s MALLOC=emmalloc \
@@ -89,6 +93,7 @@ $(wasm_path)/%/ogg_full.wasm $(wasm_path)/%/ogg_full.wasm.map : \
 	$(vorbis_src_path)/%/lib/libvorbisenc.a \
 	$(wasm_path)/vorbis/vorbis_enc.c \
 	$(wasm_path)/common_params.h \
+	package.json \
 	| $(wasm_path)/%/
 	$(build_full_wasm)
 
@@ -96,6 +101,7 @@ $(wasm_path)/%/mp3_full.wasm $(wasm_path)/%/mp3_full.wasm.map : \
 	$(lame_src_path)/%/lib/libmp3lame.a \
 	$(wasm_path)/lame/lame_enc.c \
 	$(wasm_path)/common_params.h \
+	package.json \
 	| $(wasm_path)/%/
 	$(build_full_wasm)
 

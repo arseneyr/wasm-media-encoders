@@ -7,6 +7,7 @@ interface IWasmEncoder {
   enc_free(cfg: number): void;
   enc_get_pcm(cfg: number, num_samples: number): number;
   enc_get_out_buf(cfg: number): number;
+  version(): number;
   malloc(size: number): number;
   free(ptr: number): void;
   HEAPF32: Float32Array;
