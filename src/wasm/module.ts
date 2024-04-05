@@ -36,7 +36,11 @@ export default async function (
   wasm: BufferSource | WebAssembly.Module | string
 ) {
   const imports = {
-    wasi_snapshot_preview1: { proc_exit: () => {} },
+    wasi_snapshot_preview1: {
+      proc_exit: (code: number) => {
+        throw new Error(`fatal error exit(${code})`);
+      },
+    },
     env: { emscripten_notify_memory_growth },
   };
 
