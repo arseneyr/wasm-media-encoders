@@ -4,8 +4,8 @@ import { createEncoder, WasmMediaEncoder } from "../encoder";
 
 const wav = require("wav");
 
-let wavData: readonly [Float32Array, Float32Array];
-let encoder: WasmMediaEncoder<"audio/mpeg", (typeof wavData)["length"]>;
+let wavData: readonly Float32Array[];
+let encoder: WasmMediaEncoder<"audio/mpeg">;
 let format: any;
 
 beforeAll(async () => {
@@ -105,7 +105,6 @@ test("invalid params", () => {
 });
 
 test("mono encoding", async () => {
-  let monoEncoder = encoder as WasmMediaEncoder<"audio/ogg", 1>;
   encoder.configure({
     channels: 1,
     sampleRate: format.sampleRate,

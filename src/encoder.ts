@@ -156,7 +156,7 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
     }
   }
 
-  public encode(samples: Float32Array[]) {
+  public encode(samples: readonly Float32Array[]) {
     const pcm = this.get_pcm(samples[0].length);
     pcm.forEach((b, i) => b.set(samples[i]));
 

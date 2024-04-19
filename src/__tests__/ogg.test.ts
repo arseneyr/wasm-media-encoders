@@ -4,7 +4,7 @@ import { createEncoder, WasmMediaEncoder } from "../encoder";
 
 const wav = require("wav");
 
-let wavData: readonly [Float32Array, Float32Array];
+let wavData: readonly Float32Array[];
 let encoder: WasmMediaEncoder<"audio/ogg">;
 let format: any;
 
