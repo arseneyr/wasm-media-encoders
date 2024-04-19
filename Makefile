@@ -52,7 +52,8 @@ js_output := $(addprefix $(js_build_path)/,$(js_output))
 
 .INTERMEDIATE: \
 	$(call make_prod_and_dev,$(addprefix $(wasm_path)/%/,$(wasm_full_output))) \
-	$(addprefix $(wasm_dev_path)/,$(wasm_full_output:=.map))
+	$(addprefix $(wasm_dev_path)/,$(wasm_full_output:=.map)) \
+	.sentinel
 
 wasm-dev : emcc_flags := -O0 -g
 wasm-dev : emcc_linker_flags := -O0 -g4 --source-map-base file:/$(abspath $(wasm_dev_path))

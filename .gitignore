@@ -2,8 +2,6 @@
 /wasm
 /src/wasm/build*
 
-/.sentinel
-
 .DS_Store
 .env.local
 .env.development.local
