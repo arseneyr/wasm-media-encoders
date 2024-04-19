@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`mono encoding 1`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     255,
     251,
     192,
@@ -6793,8 +6793,8 @@ Object {
 `;
 
 exports[`mp3 {"bitrate": 8} 1`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     255,
     227,
     24,
@@ -7521,8 +7521,8 @@ Object {
 `;
 
 exports[`mp3 {"bitrate": 128} 1`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     255,
     251,
     144,
@@ -17142,8 +17142,8 @@ Object {
 `;
 
 exports[`mp3 {"outputSampleRate": 8000} 1`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     255,
     227,
     104,
@@ -21542,8 +21542,8 @@ Object {
 `;
 
 exports[`mp3 {"outputSampleRate": 44100} 1`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     255,
     251,
     224,
@@ -34598,8 +34598,8 @@ Object {
 `;
 
 exports[`mp3 {"vbrQuality": 0} 1`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     255,
     251,
     224,
@@ -55797,8 +55797,8 @@ Object {
 `;
 
 exports[`mp3 {"vbrQuality": 5} 1`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     255,
     251,
     224,

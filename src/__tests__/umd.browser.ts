@@ -1,10 +1,7 @@
 import WasmMediaEncoder from "../../dist/umd/WasmMediaEncoder.min";
 import { promises as fs } from "fs";
 import { resolve } from "path";
-import pkg from "../../package.json";
-import { enableFetchMocks } from "jest-fetch-mock";
-
-enableFetchMocks();
+import { name, version } from "../../package.json";
 
 const wasm: { [filename: string]: Buffer } = {};
 
@@ -25,7 +22,7 @@ describe("fetching from url", () => {
         Object.entries(wasm).find(
           ([filename]) =>
             req.url ===
-              `https://unpkg.com/${pkg.name}@${pkg.version}/wasm/` + filename ||
+              `https://unpkg.com/${name}@${version}/wasm/` + filename ||
             req.url === "https://example.com/" + filename
         ) ?? [];
       if (!filename) {

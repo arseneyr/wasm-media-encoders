@@ -47,7 +47,7 @@ export default async function (
 
   if (typeof wasm === "string" && !WebAssembly.instantiateStreaming) {
     wasm =
-      __maybeNode__ && typeof fetch === "undefined"
+      typeof fetch === "undefined"
         ? await parseDataUrl(wasm)
         : await (await fetch(wasm)).arrayBuffer();
   }

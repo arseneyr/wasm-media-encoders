@@ -6,7 +6,7 @@
   "configurations": [
     {
       "name": "Debug Jest Tests",
-      "type": "pwa-node",
+      "type": "node",
       "request": "launch",
       "runtimeExecutable": "yarn",
       "runtimeArgs": [
@@ -17,22 +17,22 @@
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
-    }, 
-   {
-     "name": "Debug current file",
-     "request": "launch",
-     "runtimeArgs": [
-       "-r",
-       "${workspaceFolder}/.pnp.js",
-       "-r",
-       "ts-node/register",
-       "--inspect-brk",
-       "${file}"
-     ],
-     "skipFiles": [
-       "<node_internals>/**"
-     ],
-     "type": "node"
-   } 
+    },
+    {
+      "name": "Debug current file",
+      "request": "launch",
+      "runtimeArgs": [
+        "-r",
+        "${workspaceFolder}/.pnp.js",
+        "-r",
+        "ts-node/register",
+        "--inspect-brk",
+        "${file}"
+      ],
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node"
+    }
   ]
 }

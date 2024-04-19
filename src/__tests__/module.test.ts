@@ -1,7 +1,6 @@
 import { promises as fs } from "fs";
 import { resolve } from "path";
-import { createEncoder, WasmMediaEncoder } from "../encoder";
-import { version as packageVersion } from "../../package.json";
+import { createEncoder, WasmMediaEncoder, jsLibraryVersion } from "../encoder";
 
 describe.each([
   ["audio/mpeg" as const, "mp3.wasm"],
@@ -10,17 +9,19 @@ describe.each([
   let wasm: Buffer;
   beforeAll(async () => {
     wasm = await fs.readFile(resolve(__dirname, "../wasm/build", filename));
+    fetchMock.dontMockIf(/data:application\/wasm;base64/, (url) => {
+      if (url === "https://example.com/" + filename) {
+        return new Response(wasm, {
+          headers: { "Content-Type": "application/wasm" },
+        });
+      }
+      throw new Error("Unknown request");
+    });
   });
 
   test("Unsupported mimeType", async () => {
     await expect(
-      createEncoder("video/mpeg" as any, undefined as any)
-    ).rejects.toBeInstanceOf(Error);
-  });
-
-  test("fetch from custom url", async () => {
-    await expect(
-      createEncoder(mimeType, `https://example.com/${filename}`)
+      createEncoder("video/mpeg" as any, wasm)
     ).rejects.toBeInstanceOf(Error);
   });
 
@@ -30,6 +31,29 @@ describe.each([
     await expect(createEncoder(mimeType, dataUri)).resolves.toBeInstanceOf(
       WasmMediaEncoder
     );
+  });
+
+  test("fetch from unknown url", () => {
+    return expect(
+      createEncoder(mimeType, `https://example.com/`)
+    ).rejects.toThrow(Error);
+  });
+
+  test("fetch from custom url", async () => {
+    await expect(
+      createEncoder(mimeType, `https://example.com/${filename}`)
+    ).resolves.toBeInstanceOf(WasmMediaEncoder);
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect((fetch as any).mock.calls[0][0]).toMatch("example.com");
+  });
+
+  test("fetch without instantiateStreaming", async () => {
+    delete (globalThis as any).WebAssembly.instantiateStreaming;
+    await expect(
+      createEncoder(mimeType, `https://example.com/${filename}`)
+    ).resolves.toBeInstanceOf(WasmMediaEncoder);
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect((fetch as any).mock.calls[0][0]).toMatch("example.com");
   });
 
   test("use buffer", async () => {
@@ -44,7 +68,7 @@ describe.each([
     await expect(
       createEncoder(mimeType, await WebAssembly.compile(wasm), mockCallback)
     ).resolves.toBeInstanceOf(WasmMediaEncoder);
-    expect(mockCallback).toHaveBeenCalledWith(module, packageVersion);
+    expect(mockCallback).toHaveBeenCalledWith(module, jsLibraryVersion());
   });
 
   test("compiled module callback", async () => {
@@ -54,7 +78,7 @@ describe.each([
     ).resolves.toBeInstanceOf(WasmMediaEncoder);
     expect(mockCallback).toHaveBeenCalledTimes(1);
     expect(mockCallback.mock.calls[0][0]).toBeInstanceOf(WebAssembly.Module);
-    expect(mockCallback.mock.calls[0][1]).toBe(packageVersion);
+    expect(mockCallback.mock.calls[0][1]).toBe(jsLibraryVersion());
   });
 
   test("Buffer reallocation", async () => {
@@ -70,7 +94,7 @@ describe.each([
   test.skip("encode large white noise buffer", async () => {
     const input = Array.from({ length: 2 }, () =>
       Float32Array.from({ length: 10 * 1000 * 1000 }, () => Math.random())
-    );
+    ) as [Float32Array, Float32Array];
     const encoder = await createEncoder(mimeType, wasm);
     encoder.configure({
       channels: 2,
@@ -81,5 +105,27 @@ describe.each([
     console.log(
       `${mimeType} took ${(process.hrtime.bigint() - t0) / BigInt(1000000)}ms`
     );
+  });
+});
+
+describe("fetch-less browser", () => {
+  let wasm: Buffer;
+  beforeAll(async () => {
+    delete (globalThis as any).fetch;
+    delete (globalThis as any).WebAssembly.instantiateStreaming;
+    wasm = await fs.readFile(resolve(__dirname, "../wasm/build", "ogg.wasm"));
+  });
+  test("fetch from data uri", async () => {
+    const dataUri = "data:application/wasm;base64," + wasm.toString("base64");
+
+    await expect(createEncoder("audio/ogg", dataUri)).resolves.toBeInstanceOf(
+      WasmMediaEncoder
+    );
+  });
+
+  test("fetch from unknown url", () => {
+    return expect(
+      createEncoder("audio/ogg", `https://example.com/`)
+    ).rejects.toThrow(Error);
   });
 });

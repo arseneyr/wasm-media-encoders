@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`mono encoding 1`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     79,
     103,
     103,
@@ -8701,8 +8701,8 @@ Object {
 `;
 
 exports[`ogg {"vbrQuality": 3} 1`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     79,
     103,
     103,
