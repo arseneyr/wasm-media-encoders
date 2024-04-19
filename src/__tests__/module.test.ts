@@ -1,3 +1,4 @@
+import { describe, beforeAll, test, expect, jest } from "@jest/globals";
 import { promises as fs } from "fs";
 import { resolve } from "path";
 import { createEncoder, WasmMediaEncoder, jsLibraryVersion } from "../encoder";

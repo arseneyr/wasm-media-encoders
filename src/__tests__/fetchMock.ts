@@ -1,5 +1,6 @@
-interface FetchMock
-  extends jest.Mock<ReturnType<typeof fetch>, Parameters<typeof fetch>> {
+import { jest } from "@jest/globals";
+
+interface FetchMock extends jest.Mock<typeof fetch> {
   dontMockIf(
     matchingUrl: RegExp,
     createResp: (
@@ -9,7 +10,9 @@ interface FetchMock
   ): void;
 }
 
-var fetchMock: FetchMock;
+declare global {
+  var fetchMock: FetchMock;
+}
 
 const realFetch = globalThis.fetch;
 globalThis.fetch = jest.fn(realFetch);

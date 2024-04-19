@@ -1,15 +1,13 @@
 import typescript, {
   TypescriptPluginOptions,
 } from "@wessberg/rollup-plugin-ts";
-import { terser } from "rollup-plugin-terser";
+// import { terser } from "rollup-plugin-terser";
 import json from "@rollup/plugin-json";
-//@ts-ignore
 import url from "@rollup/plugin-url";
 import replace from "@rollup/plugin-replace";
 import minifyPrivates from "ts-transformer-minify-privates";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
-// import swc from "@rollup/plugin-swc";
 import { swc, minify } from "rollup-plugin-swc3";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -18,13 +16,13 @@ const isProd = process.env.NODE_ENV === "production";
 const outputPlugins = [
   ...(isProd
     ? [
-        terser({
-          mangle: {
-            properties: {
-              regex: /_private_/,
-            },
-          },
-        }),
+        // terser({
+        //   mangle: {
+        //     properties: {
+        //       regex: /_private_/,
+        //     },
+        //   },
+        // }),
       ]
     : []),
 ];
