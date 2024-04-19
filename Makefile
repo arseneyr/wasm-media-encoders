@@ -35,8 +35,8 @@ wasm_all_deps_dirs := $(call make_prod_and_dev,$(lame_src_path)/%/ $(ogg_src_pat
 wasm_output := ogg.wasm mp3.wasm
 wasm_full_output := $(wasm_output:.wasm=_full.wasm)
 
-yarn := node .yarn/releases/yarn-berry.cjs
-package_version_define := -DNODE_PACKAGE_VERSION=\"`npm -s run env printf '$$npm_package_version'`\"
+yarn := yarn
+package_version_define := -DNODE_PACKAGE_VERSION=\"`node $(wasm_path)/getVersion.mjs`\"
 
 js_output := index.js es/index.js esnext/index.mjs browser/index.js umd/WasmMediaEncoder.min.js
 js_output := $(addprefix $(js_build_path)/,$(js_output))
