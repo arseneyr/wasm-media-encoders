@@ -1,6 +1,6 @@
 /dist
 /wasm
-/src/wasm/build-dev
+/src/wasm/build*
 
 /.sentinel
 
