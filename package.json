@@ -39,6 +39,7 @@
     "@babel/core": "^7.24.4",
     "@babel/preset-env": "^7.24.4",
     "@jest/globals": "^29.7.0",
+    "@microsoft/api-extractor": "^7.43.1",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
@@ -60,5 +61,8 @@
     "typescript": "^5.4.5",
     "wav": "^1.0.2"
   },
-  "packageManager2": "yarn@4.1.1+sha256.f3cc0eda8e5560e529c7147565b30faa43b4e472d90e8634d7134a37c7f59781"
+  "packageManager2": "yarn@4.1.1+sha256.f3cc0eda8e5560e529c7147565b30faa43b4e472d90e8634d7134a37c7f59781",
+  "resolutions": {
+    "@rushstack/node-core-library@npm:4.1.0": "patch:@rushstack/node-core-library@npm%3A4.1.0#~/.yarn/patches/@rushstack-node-core-library-npm-4.1.0-8464007b08.patch"
+  }
 }

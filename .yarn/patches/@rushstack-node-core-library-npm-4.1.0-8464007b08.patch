@@ -1,0 +1,21 @@
+diff --git a/lib/PackageJsonLookup.js b/lib/PackageJsonLookup.js
+index 7dc6b96fb143cabbe09898902a9865eb51508ec6..6b4825c32ca70bdeeb6fdd3f2d276160835a88d8 100644
+--- a/lib/PackageJsonLookup.js
++++ b/lib/PackageJsonLookup.js
+@@ -123,6 +123,16 @@ class PackageJsonLookup {
+      * @returns an absolute path to a folder containing a package.json file
+      */
+     tryGetPackageFolderFor(fileOrFolderPath) {
++        // Add compatibility for Yarn PnP
++        if (process.versions.pnp) {
++            const { findPnpApi } = require("module");
++            const pnpApi = findPnpApi(fileOrFolderPath);
++
++            return pnpApi.getPackageInformation(
++                pnpApi.findPackageLocator(fileOrFolderPath)
++            ).packageLocation;
++        }
++
+         // Convert it to an absolute path
+         const resolvedFileOrFolderPath = path.resolve(fileOrFolderPath);
+         // Optimistically hope that the starting string is already in the cache,
