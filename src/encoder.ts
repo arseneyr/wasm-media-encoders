@@ -1,7 +1,10 @@
 import { Mp3Params } from "./wasm/lame/params";
 import { OggParams } from "./wasm/vorbis/params";
 import EmscriptenModule from "./wasm/module";
-import { version as packageVersion } from "../package.json";
+import {
+  version as packageVersion,
+  name as packageName,
+} from "../package.json";
 
 interface BaseEncoderParams {
   channels: 1 | 2;
@@ -175,5 +178,6 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
 }
 
 const createEncoder = WasmMediaEncoder.create;
+const jsLibraryVersion = () => `${packageName}-${packageVersion}`;
 
-export { createEncoder, WasmMediaEncoder };
+export { createEncoder, WasmMediaEncoder, jsLibraryVersion };

@@ -1,7 +1,5 @@
-import { createEncoder, WasmMediaEncoder } from "./encoder";
-//@ts-ignore
+import { createEncoder, WasmMediaEncoder, jsLibraryVersion } from "./encoder";
 import wasmMp3 from "./wasm/build/mp3.wasm";
-//@ts-ignore
 import wasmOgg from "./wasm/build/ogg.wasm";
 
 function createMp3Encoder() {
@@ -12,4 +10,10 @@ function createOggEncoder() {
   return createEncoder("audio/ogg", wasmOgg);
 }
 
-export { createEncoder, createMp3Encoder, createOggEncoder, WasmMediaEncoder };
+export {
+  createEncoder,
+  createMp3Encoder,
+  createOggEncoder,
+  WasmMediaEncoder,
+  jsLibraryVersion,
+};
