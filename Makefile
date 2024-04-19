@@ -38,7 +38,8 @@ wasm_full_output := $(wasm_output:.wasm=_full.wasm)
 yarn := yarn
 package_version_define := -DNODE_PACKAGE_VERSION=\"`node $(wasm_path)/getVersion.mjs`\"
 
-js_output := index.js es/index.js esnext/index.mjs browser/index.js umd/WasmMediaEncoder.min.js
+# js_output := index.js es/index.js esnext/index.mjs browser/index.js umd/WasmMediaEncoder.min.js
+js_output := index.js
 js_output := $(addprefix $(js_build_path)/,$(js_output))
 
 .SECONDARY: \
@@ -168,7 +169,7 @@ $(js_output) : .sentinel ;
 	$(wasm_prod_path)/mp3.wasm \
 	| $(js_build_path)
 
-	$(yarn) run rollup -c
+	$(yarn) run rollup --config rollup.config.ts --configPlugin typescript
 	@touch $@
 
 clean:

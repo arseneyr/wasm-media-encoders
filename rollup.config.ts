@@ -9,6 +9,8 @@ import replace from "@rollup/plugin-replace";
 import minifyPrivates from "ts-transformer-minify-privates";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
+// import swc from "@rollup/plugin-swc";
+import { swc, minify } from "rollup-plugin-swc3";
 
 const isDev = process.env.NODE_ENV === "development";
 const isProd = process.env.NODE_ENV === "production";
@@ -112,4 +114,35 @@ const umdConfig = {
   plugins: plugins(),
 };
 
-export default [mainConfig, esmConfig, esnextConfig, browserConfig, umdConfig];
+// export default [mainConfig, esmConfig, esnextConfig, browserConfig, umdConfig];
+
+import type { RollupOptions } from "rollup";
+
+const config: RollupOptions = {
+  input: "src/index.ts",
+  output: {
+    file: "dist/index.js",
+    format: "cjs",
+    // plugins: outputPlugins,
+  },
+  plugins: [
+    url({ include: "**/*.wasm", limit: 1024 * 1024 * 8 }),
+    json(),
+    resolve({ extensions: [".ts"] }),
+    swc({
+      tsconfig: false,
+      env: {
+        targets: {
+          node: "10",
+        },
+      },
+    }),
+    replace({
+      values: { __maybeNode__: JSON.stringify(true) },
+      preventAssignment: true,
+    }),
+    minify(),
+  ],
+};
+
+export default config;
