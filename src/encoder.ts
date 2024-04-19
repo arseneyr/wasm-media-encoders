@@ -99,18 +99,18 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
     ) => Int32Array,
     encoderCallback?: EncoderModuleCallback
   ) {
-    if (!this.module.version) {
-      throw new Error(
-        `JS and WASM version mismatch. JS version: ${packageVersion} WASM version: unknown (< 0.7.0)`
-      );
-    }
-    const wasmModuleVersion = this.get_string(this.module.version());
-    if (packageVersion != wasmModuleVersion) {
-      throw new Error(
-        `JS and WASM version mismatch. JS version: ${packageVersion} WASM version: ${wasmModuleVersion}`
-      );
-    }
+    const wasmModuleVersion = this.module.version
+      ? this.get_string(this.module.version())
+      : "unknown (< 0.7.0)";
+
+    const jsVersion = jsLibraryVersion();
+
     encoderCallback?.(module.module, wasmModuleVersion);
+    if (jsVersion != wasmModuleVersion) {
+      throw new Error(
+        `JS and WASM version mismatch. JS version: ${jsVersion} WASM version: ${wasmModuleVersion}`
+      );
+    }
   }
 
   public static async create<T extends SupportedMimeTypes>(
