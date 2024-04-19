@@ -1,7 +1,7 @@
 {
   "clang-format.executable": "${workspaceRoot}/node_modules/.bin/clang-format",
   "typescript.tsdk": ".yarn/sdks/typescript/lib",
-  "jest.pathToJest": "yarn jest",
+  "git.detectSubmodules": false,
   "search.exclude": {
     "**/.yarn": true,
     "**/.pnp.*": true
