@@ -81,7 +81,10 @@ $(wasm_publish_path) $(js_build_path):
 $(wasm_path)/%/:
 	mkdir -p $@
 
-$(lame_src_path)/%/lib/libmp3lame.a: | $(lame_src_path)/%/
+$(lame_src_path)/%/lib/libmp3lame.a: \
+	$(lame_src_path)/configure \
+	| $(lame_src_path)/%/
+
 	cd $(lame_src_path)/$* && \
 	emconfigure ../configure \
 		CFLAGS="-DNDEBUG -DNO_STDIO $(emcc_flags)" \
@@ -129,7 +132,9 @@ $(wasm_path)/%/mp3_full.wasm $(wasm_path)/%/mp3_full.wasm.map : \
 $(wasm_dev_path)/%.wasm.map : $(wasm_dev_path)/%_full.wasm.map
 	cp $< $@
 
-$(ogg_src_path)/%/lib/libogg.a: | $(ogg_src_path)/%/
+$(ogg_src_path)/%/lib/libogg.a: \
+	$(ogg_src_path)/CMakeLists.txt \
+	| $(ogg_src_path)/%/
 	cd $(ogg_src_path)/$* && \
 	emcmake cmake .. \
 		-DCMAKE_INSTALL_PREFIX=$(abspath $(ogg_src_path)/$*) \
@@ -139,6 +144,7 @@ $(ogg_src_path)/%/lib/libogg.a: | $(ogg_src_path)/%/
 	cmake --build . --target install
 
 $(vorbis_src_path)/%/lib/libvorbis.a $(vorbis_src_path)/%/lib/libvorbisenc.a: \
+	$(vorbis_src_path)/CMakeLists.txt \
 	$(ogg_src_path)/%/lib/libogg.a \
 	| $(vorbis_src_path)/%/
 
@@ -151,6 +157,9 @@ $(vorbis_src_path)/%/lib/libvorbis.a $(vorbis_src_path)/%/lib/libvorbisenc.a: \
 		-DOGG_LIBRARY=$(abspath $(ogg_src_path))/$*/lib/libogg.a \
 		&& \
 	emmake make all install
+
+$(ogg_src_path)/CMakeLists.txt $(vorbis_src_path)/CMakeLists.txt $(lame_src_path)/configure:
+	git submodule update --init --recursive	
 
 $(wasm_path)/%.wasm : $(wasm_path)/%_full.wasm $(wasm_path)/minify_graph.json
 		/emsdk/upstream/bin/wasm-metadce --graph-file $(wasm_path)/minify_graph.json -o $@ $< && rm $<
