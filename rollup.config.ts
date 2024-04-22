@@ -1,81 +1,66 @@
-import typescript, {
-  TypescriptPluginOptions,
-} from "@wessberg/rollup-plugin-ts";
-// import { terser } from "rollup-plugin-terser";
 import json from "@rollup/plugin-json";
 import url from "@rollup/plugin-url";
-import replace from "@rollup/plugin-replace";
-import minifyPrivates from "ts-transformer-minify-privates";
 import resolve from "@rollup/plugin-node-resolve";
-import commonjs from "@rollup/plugin-commonjs";
-import { swc, minify } from "rollup-plugin-swc3";
+import ts from "rollup-plugin-ts";
+import path from "path";
+import type { RollupOptions } from "rollup";
 
 const isDev = process.env.NODE_ENV === "development";
 const isProd = process.env.NODE_ENV === "production";
 
-const outputPlugins = [
-  ...(isProd
-    ? [
-        // terser({
-        //   mangle: {
-        //     properties: {
-        //       regex: /_private_/,
-        //     },
-        //   },
-        // }),
-      ]
-    : []),
-];
-
 const plugins = ({
-  maybeNode = true,
-  tsConfig = {} as Partial<TypescriptPluginOptions>,
+  typecheck = false,
   targets = "supports wasm",
+  outDir = ".",
 } = {}) => [
   url({ include: "**/*.wasm", limit: 1024 * 1024 * 8 }),
   json(),
   resolve(),
-  commonjs(),
-  typescript({
-    include: ["src/**/*"],
-    transformers: ({ program }) => ({ before: [minifyPrivates(program!)] }),
-    babelConfig: {
-      compact: true,
-      presets: [
-        [
-          "@babel/preset-env",
-          {
-            targets,
-            bugfixes: true,
-          },
-        ],
-      ],
+  ts({
+    transpiler: "swc",
+    transpileOnly: !typecheck,
+    tsconfig: (config) => ({
+      ...config,
+      declarationDir: path.resolve("dist", outDir),
+    }),
+    swcConfig: {
+      env: {
+        targets,
+      },
+      minify: isProd,
+      jsc: {
+        minify: {
+          mangle: true,
+          compress: true,
+        },
+      },
     },
-    transpiler: "babel",
-    ...tsConfig,
   }),
-  replace({ __maybeNode__: JSON.stringify(maybeNode) }),
 ];
 
-const mainConfig = {
+const mainConfig: RollupOptions = {
   input: "src/index.ts",
   output: {
-    file: "dist/index.js",
+    file: "dist/index.cjs",
     format: "cjs",
-    plugins: outputPlugins,
   },
+  external: [/@swc\/helpers/],
 
-  plugins: plugins({ targets: "node 10" }),
+  plugins: plugins({ targets: "supports wasm", typecheck: true }),
 };
 
 const esmConfig = {
   input: "src/index.ts",
   output: {
-    plugins: outputPlugins,
     format: "es",
-    file: "dist/es/index.js",
+    file: "dist/es/index.mjs",
   },
-  plugins: plugins({ targets: "node 10" }),
+  external: [/@swc\/helpers/],
+
+  plugins: plugins({
+    targets: "supports es6-module and supports wasm",
+    outDir: "es",
+  }),
 };
 
 const esnextConfig = {
@@ -83,22 +68,12 @@ const esnextConfig = {
   output: {
     format: "es",
     file: "dist/esnext/index.mjs",
-    plugins: outputPlugins,
   },
-  plugins: plugins({
-    tsConfig: { transpiler: "typescript" },
-  }),
-};
 
-const browserConfig = {
-  input: "src/index.ts",
-  output: {
-    format: "es",
-    file: "dist/browser/index.js",
-    plugins: outputPlugins,
-  },
-  external: [/@babel\/runtime/],
-  plugins: plugins({ maybeNode: false }),
+  plugins: plugins({
+    targets: "",
+    outDir: "esnext",
+  }),
 };
 
 const umdConfig = {
@@ -107,40 +82,8 @@ const umdConfig = {
     file: "dist/umd/WasmMediaEncoder.min.js",
     name: "WasmMediaEncoder",
     format: "umd",
-    plugins: outputPlugins,
   },
-  plugins: plugins(),
+  plugins: plugins({ outDir: "umd" }),
 };
 
-// export default [mainConfig, esmConfig, esnextConfig, browserConfig, umdConfig];
-
-import type { RollupOptions } from "rollup";
-
-const config: RollupOptions = {
-  input: "src/index.ts",
-  output: {
-    file: "dist/index.js",
-    format: "cjs",
-    // plugins: outputPlugins,
-  },
-  plugins: [
-    url({ include: "**/*.wasm", limit: 1024 * 1024 * 8 }),
-    json(),
-    resolve({ extensions: [".ts"] }),
-    swc({
-      tsconfig: false,
-      env: {
-        targets: {
-          node: "10",
-        },
-      },
-    }),
-    replace({
-      values: { __maybeNode__: JSON.stringify(true) },
-      preventAssignment: true,
-    }),
-    minify(),
-  ],
-};
-
-export default config;
+export default [mainConfig, esmConfig, esnextConfig, umdConfig];

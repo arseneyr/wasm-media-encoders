@@ -2,6 +2,8 @@
 /wasm
 /src/wasm/build*
 
+/rollup.config-*.mjs
+
 .DS_Store
 .env.local
 .env.development.local
