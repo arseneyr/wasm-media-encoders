@@ -1,3 +1,4 @@
+import { beforeAll, test, expect, describe, beforeEach } from "@jest/globals";
 import WasmMediaEncoder from "../../dist/umd/WasmMediaEncoder.min";
 import { promises as fs } from "fs";
 import { resolve } from "path";
@@ -28,12 +29,10 @@ describe("fetching from url", () => {
       if (!filename) {
         throw new Error("Unknown request");
       }
-      return (await new Response(data)) as any;
+      return (await new Response(data, {
+        headers: { "Content-Type": "application/wasm" },
+      })) as any;
     });
-  });
-
-  afterEach(() => {
-    fetchMock.resetMocks();
   });
 
   test("fetch from unpkg", async () => {

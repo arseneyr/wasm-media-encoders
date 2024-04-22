@@ -8,6 +8,7 @@ interface FetchMock extends jest.Mock<typeof fetch> {
       options?: RequestInit
     ) => Response | PromiseLike<Response>
   ): void;
+  mockResponse(fn: (req: Request) => Response | PromiseLike<Response>): void;
 }
 
 declare global {
@@ -26,4 +27,9 @@ globalThis.fetchMock.dontMockIf = (matchingUrl, createResponse) => {
       ? realFetch(urlOrRequest, ...args)
       : Promise.resolve(createResponse(url, ...args));
   });
+};
+globalThis.fetchMock.mockResponse = (createResponse) => {
+  globalThis.fetchMock.mockImplementation((request) =>
+    Promise.resolve(createResponse(new Request(request)))
+  );
 };
