@@ -36,7 +36,12 @@ wasm_output := ogg.wasm mp3.wasm
 wasm_full_output := $(wasm_output:.wasm=_full.wasm)
 
 yarn := yarn
-package_version_define := -DNODE_PACKAGE_VERSION=\"`node $(wasm_path)/getVersion.mjs`\"
+define package_version_define
+	-DNODE_PACKAGE_VERSION=\"`$(yarn) node --no-warnings --loader ts-node/esm $(js_path)/printVersion.ts $(1) || kill -HUP $$$$`\"
+endef
+# package_version_define := -DNODE_PACKAGE_VERSION=\"`yarn node --loader ts-node/esm $(js_path)/printVersion.ts || kill -HUP $$$$`\"
+# package_version := $(shell $(yarn) node --loader ts-node/esm $(js_path)/version.ts)
+# package_version_define := -DNODE_PACKAGE_VERSION=\"$(package_version)\"
 
 js_output := index.cjs es/index.mjs esnext/index.mjs umd/WasmMediaEncoder.mp3.min.js umd/WasmMediaEncoder.ogg.min.js
 js_output := $(addprefix $(js_build_path)/,$(js_output))
@@ -100,7 +105,7 @@ $(lame_src_path)/%/lib/libmp3lame.a: \
 define build_full_wasm
 	emcc $(filter %.c %.a,$^) \
 	  -DNDEBUG \
-		$(package_version_define) \
+		$(call package_version_define,$(1)) \
 		$(emcc_linker_flags) \
 		$(addprefix -I,$(includes)) \
 		--no-entry \
@@ -119,14 +124,14 @@ $(wasm_path)/%/ogg_full.wasm $(wasm_path)/%/ogg_full.wasm.map : \
 	$(wasm_common_deps) \
 	$(wasm_path)/vorbis/vorbis_enc.c \
 	| $(wasm_path)/%/
-	$(build_full_wasm)
+	$(call build_full_wasm,audio/ogg)
 
 $(wasm_path)/%/mp3_full.wasm $(wasm_path)/%/mp3_full.wasm.map : \
 	$(wasm_lame_deps) \
 	$(wasm_common_deps) \
 	$(wasm_path)/lame/lame_enc.c \
 	| $(wasm_path)/%/
-	$(build_full_wasm)
+	$(call build_full_wasm,audio/mpeg)
 
 $(wasm_dev_path)/%.wasm.map : $(wasm_dev_path)/%_full.wasm.map
 	cp $< $@

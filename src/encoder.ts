@@ -5,6 +5,7 @@ import {
   version as packageVersion,
   name as packageName,
 } from "../package.json";
+import getVersion from "./version";
 
 interface BaseEncoderParams {
   channels: 1 | 2;
@@ -103,7 +104,7 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
       ? this.get_string(this.module.version())
       : "unknown (< 0.7.0)";
 
-    const jsVersion = jsLibraryVersion();
+    const jsVersion = jsLibraryVersion(mimeType);
 
     encoderCallback?.(module.module, wasmModuleVersion);
     if (jsVersion != wasmModuleVersion) {
@@ -178,6 +179,6 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
 }
 
 const createEncoder = WasmMediaEncoder.create;
-const jsLibraryVersion = () => `${packageName}-${packageVersion}`;
+const jsLibraryVersion = getVersion;
 
 export { createEncoder, WasmMediaEncoder, jsLibraryVersion };

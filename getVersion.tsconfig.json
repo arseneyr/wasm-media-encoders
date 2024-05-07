@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "moduleResolution": "Node",
+    "module": "CommonJS",
+    "resolveJsonModule": true,
+    "noEmit": true
+  },
+  "include": ["src/printVersion.ts", "src/version.ts"],
+  "ts-node": {
+    "experimentalSpecifierResolution": "node",
+    "transpileOnly": true
+    // "esm": true
+  }
+}
