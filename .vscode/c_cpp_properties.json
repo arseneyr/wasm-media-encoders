@@ -9,7 +9,8 @@
                 "/emsdk/upstream/emscripten/system/include"
             ],
             "defines": [
-                "NODE_PACKAGE_VERSION=\"\""
+                "NODE_PACKAGE_VERSION=\"\"",
+                "MIME_TYPE=\"\""
             ],
             "cStandard": "c17",
             "cppStandard": "c++17",

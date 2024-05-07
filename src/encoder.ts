@@ -1,10 +1,6 @@
 import { Mp3Params } from "./wasm/lame/params";
 import { OggParams } from "./wasm/vorbis/params";
 import EmscriptenModule from "./wasm/module";
-import {
-  version as packageVersion,
-  name as packageName,
-} from "../package.json";
 import getVersion from "./version";
 
 interface BaseEncoderParams {
@@ -103,13 +99,19 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
     const wasmModuleVersion = this.module.version
       ? this.get_string(this.module.version())
       : "unknown (< 0.7.0)";
+    const wasmMimeType = this.get_string(this.module.mime_type());
 
-    const jsVersion = jsLibraryVersion(mimeType);
+    const jsVersion = jsLibraryVersion();
 
     encoderCallback?.(module.module, wasmModuleVersion);
     if (jsVersion != wasmModuleVersion) {
       throw new Error(
         `JS and WASM version mismatch. JS version: ${jsVersion} WASM version: ${wasmModuleVersion}`
+      );
+    }
+    if (mimeType != wasmMimeType) {
+      throw new Error(
+        `Loaded incorrect WASM for MIME type. JS expected ${mimeType}, WASM is ${wasmMimeType}`
       );
     }
   }

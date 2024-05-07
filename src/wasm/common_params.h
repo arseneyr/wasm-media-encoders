@@ -9,3 +9,9 @@ char *version(void)
 {
 	return NODE_PACKAGE_VERSION;
 }
+
+EMSCRIPTEN_KEEPALIVE
+char *mime_type(void)
+{
+	return MIME_TYPE;
+}

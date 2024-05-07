@@ -13,6 +13,7 @@
   "include": [
     "src/**/*.ts",
     "jest.config.ts",
-    "rollup.config.ts"
+    "rollup.config.ts",
+    "printVersion.ts"
   ],
 }

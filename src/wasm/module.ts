@@ -8,6 +8,7 @@ interface IWasmEncoder {
   enc_get_pcm(cfg: number, num_samples: number): number;
   enc_get_out_buf(cfg: number): number;
   version(): number;
+  mime_type(): number;
   malloc(size: number): number;
   free(ptr: number): void;
   HEAPF32: Float32Array;
@@ -15,10 +16,6 @@ interface IWasmEncoder {
   HEAPU8: Uint8Array;
   _initialize(): void;
   memory: WebAssembly.Memory;
-}
-
-declare global {
-  const __maybeNode__: boolean;
 }
 
 function parseDataUrl(url: string) {

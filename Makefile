@@ -23,7 +23,7 @@ wasm_ogg_deps := \
 	$(vorbis_src_path)/%/lib/libvorbis.a \
 	$(vorbis_src_path)/%/lib/libvorbisenc.a
 wasm_lame_deps := $(lame_src_path)/%/lib/libmp3lame.a
-wasm_common_deps := $(wasm_path)/common_params.h package.json
+wasm_common_deps := $(wasm_path)/common_params.h package.json printVersion.ts src/version.ts
 
 define make_prod_and_dev
 	$(foreach dep,$(1),$(subst %,$(prod_subpath),$(dep)) $(subst %,$(dev_subpath),$(dep)))
@@ -36,9 +36,7 @@ wasm_output := ogg.wasm mp3.wasm
 wasm_full_output := $(wasm_output:.wasm=_full.wasm)
 
 yarn := yarn
-define package_version_define
-	-DNODE_PACKAGE_VERSION=\"`$(yarn) node --no-warnings --loader ts-node/esm $(js_path)/printVersion.ts $(1) || kill -HUP $$$$`\"
-endef
+package_version_define :=	-DNODE_PACKAGE_VERSION=\"`$(yarn) tsx --no-warnings printVersion.ts || kill -HUP $$$$`\"
 # package_version_define := -DNODE_PACKAGE_VERSION=\"`yarn node --loader ts-node/esm $(js_path)/printVersion.ts || kill -HUP $$$$`\"
 # package_version := $(shell $(yarn) node --loader ts-node/esm $(js_path)/version.ts)
 # package_version_define := -DNODE_PACKAGE_VERSION=\"$(package_version)\"
@@ -105,7 +103,8 @@ $(lame_src_path)/%/lib/libmp3lame.a: \
 define build_full_wasm
 	emcc $(filter %.c %.a,$^) \
 	  -DNDEBUG \
-		$(call package_version_define,$(1)) \
+		$(package_version_define) \
+		-DMIME_TYPE='"$(mime_type)"' \
 		$(emcc_linker_flags) \
 		$(addprefix -I,$(includes)) \
 		--no-entry \
@@ -116,22 +115,25 @@ define build_full_wasm
 		-o $(@:.map=)
 endef
 
-$(wasm_path)/%/ogg_full.wasm $(wasm_path)/%/ogg_full.wasm.map : includes = $(ogg_src_path)/$*/include $(vorbis_src_path)/$*/include
+$(wasm_path)/%/ogg_full.wasm $(wasm_path)/%/ogg_full.wasm.map : includes = $(ogg_src_path)/$*/include $(vorbis_src_path)/$*/include 
+$(wasm_path)/%/ogg_full.wasm $(wasm_path)/%/ogg_full.wasm.map : mime_type := audio/ogg
+
 $(wasm_path)/%/mp3_full.wasm $(wasm_path)/%/mp3_full.wasm.map : includes = $(lame_src_path)/$*/include
+$(wasm_path)/%/mp3_full.wasm $(wasm_path)/%/mp3_full.wasm.map : mime_type := audio/mpeg
 
 $(wasm_path)/%/ogg_full.wasm $(wasm_path)/%/ogg_full.wasm.map : \
 	$(wasm_ogg_deps) \
 	$(wasm_common_deps) \
 	$(wasm_path)/vorbis/vorbis_enc.c \
 	| $(wasm_path)/%/
-	$(call build_full_wasm,audio/ogg)
+	$(build_full_wasm)
 
 $(wasm_path)/%/mp3_full.wasm $(wasm_path)/%/mp3_full.wasm.map : \
 	$(wasm_lame_deps) \
 	$(wasm_common_deps) \
 	$(wasm_path)/lame/lame_enc.c \
 	| $(wasm_path)/%/
-	$(call build_full_wasm,audio/mpeg)
+	$(build_full_wasm)
 
 $(wasm_dev_path)/%.wasm.map : $(wasm_dev_path)/%_full.wasm.map
 	cp $< $@

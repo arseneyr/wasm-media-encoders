@@ -6,6 +6,7 @@
   { "name": "enc_get_out_buf", "export": "enc_get_out_buf", "root": true },
   { "name": "enc_free", "export": "enc_free", "root": true },
   { "name": "version", "export": "version", "root": true },
+  { "name": "mime_type", "export": "mime_type", "root": true },
   { "name": "memory", "export": "memory", "root": true },
   { "name": "malloc", "export": "malloc", "root": true },
   { "name": "free", "export": "free", "root": true },
