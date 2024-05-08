@@ -1,4 +1,4 @@
-import { XOR } from "../utils";
+import { XOR } from "./utils";
 
 interface IWasmEncoder {
   enc_init(params: number): number;

@@ -1,6 +1,6 @@
 import { Mp3Params } from "./wasm/lame/params";
 import { OggParams } from "./wasm/vorbis/params";
-import EmscriptenModule from "./wasm/module";
+import EmscriptenModule from "./module";
 import getVersion from "./version";
 
 interface BaseEncoderParams {
