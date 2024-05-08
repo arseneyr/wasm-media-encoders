@@ -37,9 +37,6 @@ wasm_full_output := $(wasm_output:.wasm=_full.wasm)
 
 yarn := yarn
 package_version_define :=	-DNODE_PACKAGE_VERSION=\"`$(yarn) tsx --no-warnings printVersion.ts || kill -HUP $$$$`\"
-# package_version_define := -DNODE_PACKAGE_VERSION=\"`yarn node --loader ts-node/esm $(js_path)/printVersion.ts || kill -HUP $$$$`\"
-# package_version := $(shell $(yarn) node --loader ts-node/esm $(js_path)/version.ts)
-# package_version_define := -DNODE_PACKAGE_VERSION=\"$(package_version)\"
 
 js_output := index.cjs es/index.mjs esnext/index.mjs umd/WasmMediaEncoder.mp3.min.js umd/WasmMediaEncoder.ogg.min.js
 js_output := $(addprefix $(js_build_path)/,$(js_output))
