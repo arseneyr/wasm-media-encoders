@@ -69,10 +69,7 @@ describe.each([
     await expect(
       createEncoder(mimeType, await WebAssembly.compile(wasm), mockCallback)
     ).resolves.toBeInstanceOf(WasmMediaEncoder);
-    expect(mockCallback).toHaveBeenCalledWith(
-      module,
-      jsLibraryVersion(mimeType)
-    );
+    expect(mockCallback).toHaveBeenCalledWith(module, jsLibraryVersion());
   });
 
   test("compiled module callback", async () => {
@@ -82,7 +79,7 @@ describe.each([
     ).resolves.toBeInstanceOf(WasmMediaEncoder);
     expect(mockCallback).toHaveBeenCalledTimes(1);
     expect(mockCallback.mock.calls[0][0]).toBeInstanceOf(WebAssembly.Module);
-    expect(mockCallback.mock.calls[0][1]).toBe(jsLibraryVersion(mimeType));
+    expect(mockCallback.mock.calls[0][1]).toBe(jsLibraryVersion());
   });
 
   test("Buffer reallocation", async () => {
