@@ -33,7 +33,8 @@ type Unpromisify<T> = T extends PromiseLike<infer U> ? U : T;
 
 type EncoderModuleCallback = (
   module: WebAssembly.Module,
-  version: string
+  version: string,
+  mimeType: string
 ) => unknown;
 
 const encoderConfigs: ConfigMap = {
@@ -98,12 +99,12 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
   ) {
     const wasmModuleVersion = this.module.version
       ? this.get_string(this.module.version())
-      : "unknown (< 0.7.0)";
+      : "unknown (< 1.0.0)";
     const wasmMimeType = this.get_string(this.module.mime_type());
 
     const jsVersion = jsLibraryVersion();
 
-    encoderCallback?.(module.module, wasmModuleVersion);
+    encoderCallback?.(module.module, wasmModuleVersion, wasmMimeType);
     if (jsVersion != wasmModuleVersion) {
       throw new Error(
         `JS and WASM version mismatch. JS version: ${jsVersion} WASM version: ${wasmModuleVersion}`
