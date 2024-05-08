@@ -63,6 +63,7 @@ dev : export NODE_ENV := development
 wasm-prod : emcc_flags := -Oz -flto
 wasm-prod : emcc_linker_flags := -Oz -flto -Wl,--strip-all
 prod : export NODE_ENV := production
+js: export NODE_NO_WARNINGS = 1
 
 wasm-dev: $(addprefix $(wasm_dev_path)/,$(wasm_output) $(wasm_output:=.map))
 wasm-prod: $(addprefix $(wasm_prod_path)/,$(wasm_output)) $(addprefix $(wasm_publish_path)/,$(wasm_output))
@@ -176,7 +177,6 @@ $(js_output) : .sentinel ;
 
 .sentinel : \
 	$(js_path)/*.ts \
-	$(wasm_path)/*.ts \
 	rollup.config.ts \
 	tsconfig.json \
 	package.json \
