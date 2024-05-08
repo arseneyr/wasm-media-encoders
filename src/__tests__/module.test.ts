@@ -1,4 +1,4 @@
-import { describe, beforeAll, test, expect, jest } from "@jest/globals";
+import { describe, beforeAll, test, expect, vi } from "vitest";
 import { promises as fs } from "fs";
 import { resolve } from "path";
 import { createEncoder, WasmMediaEncoder, jsLibraryVersion } from "../encoder";
@@ -64,7 +64,7 @@ describe.each([
   });
 
   test("use precompiled module", async () => {
-    const mockCallback = jest.fn();
+    const mockCallback = vi.fn();
     const module = await WebAssembly.compile(wasm);
     await expect(
       createEncoder(mimeType, await WebAssembly.compile(wasm), mockCallback)
@@ -77,7 +77,7 @@ describe.each([
   });
 
   test("compiled module callback", async () => {
-    const mockCallback = jest.fn();
+    const mockCallback = vi.fn();
     await expect(
       createEncoder(mimeType, wasm, mockCallback)
     ).resolves.toBeInstanceOf(WasmMediaEncoder);

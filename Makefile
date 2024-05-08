@@ -70,7 +70,7 @@ dev: wasm-dev js
 prod: wasm-prod js
 
 test: prod
-	$(yarn) run jest
+	$(yarn) run vitest run
 
 $(wasm_publish_path)/%.wasm : $(wasm_prod_path)/%.wasm | $(wasm_publish_path)
 	cp $< $@
