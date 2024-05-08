@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`mono encoding 1`] = `
 {
@@ -8700,7 +8700,7 @@ exports[`mono encoding 1`] = `
 }
 `;
 
-exports[`ogg {"vbrQuality": 3} 1`] = `
+exports[`ogg %p { vbrQuality: 3 } 1`] = `
 {
   "data": [
     79,

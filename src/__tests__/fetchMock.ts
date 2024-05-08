@@ -1,6 +1,6 @@
-import { jest } from "@jest/globals";
+import { vi, MockedFunction } from "vitest";
 
-interface FetchMock extends jest.Mock<typeof fetch> {
+interface FetchMock extends MockedFunction<typeof fetch> {
   dontMockIf(
     matchingUrl: RegExp,
     createResp: (
@@ -16,7 +16,7 @@ declare global {
 }
 
 const realFetch = globalThis.fetch;
-globalThis.fetch = jest.fn(realFetch);
+globalThis.fetch = vi.fn(realFetch);
 globalThis.fetchMock = Object.create(globalThis.fetch);
 globalThis.fetchMock.dontMockIf = (matchingUrl, createResponse) => {
   globalThis.fetchMock.mockImplementation((urlOrRequest, ...args) => {

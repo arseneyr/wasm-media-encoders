@@ -2,6 +2,8 @@
 /wasm
 /src/wasm/build*
 
+/.vite
+
 /rollup.config-*.mjs
 
 .DS_Store

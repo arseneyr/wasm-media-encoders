@@ -1,4 +1,4 @@
-import { beforeAll, test, expect, describe, beforeEach } from "@jest/globals";
+import { beforeAll, test, expect, describe, beforeEach } from "vitest";
 import WasmMediaEncoder from "../../dist/umd/WasmMediaEncoder.min";
 import { promises as fs } from "fs";
 import { resolve } from "path";
