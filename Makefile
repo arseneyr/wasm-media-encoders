@@ -14,16 +14,19 @@ dev_subpath := build-dev
 wasm_prod_path := $(wasm_path)/$(prod_subpath)
 wasm_dev_path := $(wasm_path)/$(dev_subpath)
 
-lame_src_path := $(wasm_path)/lame/lame-src
-ogg_src_path := $(wasm_path)/vorbis/ogg-src
-vorbis_src_path := $(wasm_path)/vorbis/vorbis-src
+lame_wasm_path := $(wasm_path)/lame
+ogg_wasm_path := $(wasm_path)/vorbis
+
+lame_src_path := $(lame_wasm_path)/lame-src
+ogg_src_path := $(ogg_wasm_path)/ogg-src
+vorbis_src_path := $(ogg_wasm_path)/vorbis-src
 
 wasm_ogg_deps := \
 	$(ogg_src_path)/%/lib/libogg.a \
 	$(vorbis_src_path)/%/lib/libvorbis.a \
 	$(vorbis_src_path)/%/lib/libvorbisenc.a
 wasm_lame_deps := $(lame_src_path)/%/lib/libmp3lame.a
-wasm_common_deps := $(wasm_path)/common_params.h package.json printVersion.ts src/version.ts
+wasm_common_deps := $(wasm_path)/common_params.h package.json printVersion.ts $(js_path)/version.ts
 
 define make_prod_and_dev
 	$(foreach dep,$(1),$(subst %,$(prod_subpath),$(dep)) $(subst %,$(dev_subpath),$(dep)))
@@ -174,6 +177,8 @@ $(js_output) : .sentinel ;
 
 .sentinel : \
 	$(js_path)/*.ts \
+	$(lame_wasm_path)/*.ts \
+	$(ogg_wasm_path)/*.ts \
 	rollup.config.ts \
 	tsconfig.json \
 	package.json \
