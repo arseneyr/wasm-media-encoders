@@ -1,5 +1,6 @@
 import { createEncoder, WasmMediaEncoder } from "./encoder";
 import { name, version } from "../package.json";
+import getVersion from "./version";
 
 const createMp3Encoder = createEncoder.bind(
   null,
@@ -17,5 +18,6 @@ const UMDEncoder: any = WasmMediaEncoder;
 UMDEncoder.createEncoder = createEncoder;
 UMDEncoder.createMp3Encoder = createMp3Encoder;
 UMDEncoder.createOggEncoder = createOggEncoder;
+UMDEncoder.jsLibraryVersion = getVersion;
 
 export default UMDEncoder;
