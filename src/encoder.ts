@@ -51,21 +51,15 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
     if (!pcm_ptr_ptr) {
       throw new Error("PCM buffer allocation failed!");
     }
-    const pcm_ptrs = this.module.HEAP32.subarray(
-      pcm_ptr_ptr >> 2,
-      (pcm_ptr_ptr >> 2) + this.channelCount
-    );
+    const pcm_ptrs = this.module.getInt32Array(pcm_ptr_ptr, this.channelCount);
     return Array.from({ length: this.channelCount }, (_, i) =>
-      this.module.HEAPF32.subarray(
-        pcm_ptrs[i] >> 2,
-        (pcm_ptrs[i] >> 2) + num_samples
-      )
+      this.module.getFloat32Array(pcm_ptrs[i], num_samples)
     );
   }
 
   private get_out_buf(size: number) {
     const ptr = this.module.enc_get_out_buf(this.ref);
-    return this.module.HEAPU8.subarray(ptr, ptr + size);
+    return this.module.getUint8Array(ptr, size);
   }
 
   private get_common_params(params: BaseEncoderParams) {
@@ -83,12 +77,6 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
     return new Uint32Array([params.channels, params.sampleRate]);
   }
 
-  private get_string(ptr: number) {
-    const nullBytePtr = this.module.HEAPU8.indexOf(0, ptr);
-    const stringBuffer = this.module.HEAPU8.slice(ptr, nullBytePtr);
-    return String.fromCharCode(...stringBuffer);
-  }
-
   private constructor(
     public readonly mimeType: MimeType,
     private readonly module: Unpromisify<ReturnType<typeof EmscriptenModule>>,
@@ -98,9 +86,9 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
     encoderCallback?: EncoderModuleCallback
   ) {
     const wasmModuleVersion = this.module.version
-      ? this.get_string(this.module.version())
+      ? this.module.getString(this.module.version())
       : "unknown (< 1.0.0)";
-    const wasmMimeType = this.get_string(this.module.mime_type());
+    const wasmMimeType = this.module.getString(this.module.mime_type());
 
     const jsVersion = jsLibraryVersion();
 
@@ -144,11 +132,15 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
     if (!paramAlloc) {
       throw new Error("Failed to allocate parameter buffer");
     }
-    this.module.HEAP32.set(commonParamBuffer, paramAlloc >> 2);
-    this.module.HEAP32.set(
-      paramBuffer,
-      (paramAlloc + commonParamBuffer.byteLength) >> 2
-    );
+    this.module
+      .getInt32Array(paramAlloc, commonParamBuffer.length)
+      .set(commonParamBuffer);
+    this.module
+      .getInt32Array(
+        paramAlloc + commonParamBuffer.byteLength,
+        paramBuffer.length
+      )
+      .set(paramBuffer);
     this.channelCount = params.channels;
     try {
       this.ref = this.module.enc_init(paramAlloc);

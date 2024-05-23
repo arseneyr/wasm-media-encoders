@@ -1,6 +1,6 @@
 import { XOR } from "./utils";
 
-interface IWasmEncoder {
+interface IWasmEncoderPublic {
   enc_init(params: number): number;
   enc_encode(cfg: number, num_samples: number): number;
   enc_flush(cfg: number): number;
@@ -11,11 +11,16 @@ interface IWasmEncoder {
   mime_type(): number;
   malloc(size: number): number;
   free(ptr: number): void;
-  HEAPF32: Float32Array;
-  HEAP32: Int32Array;
-  HEAPU8: Uint8Array;
-  _initialize(): void;
+  module: WebAssembly.Module;
+  getInt32Array(ptr: number, length?: number): Int32Array;
+  getUint8Array(ptr: number, length?: number): Uint8Array;
+  getFloat32Array(ptr: number, length?: number): Float32Array;
+  getString(ptr: number): string;
+}
+
+interface IWasmEncoderPrivate extends IWasmEncoderPublic {
   memory: WebAssembly.Memory;
+  _initialize(): void;
 }
 
 function parseDataUrl(url: string) {
@@ -32,14 +37,14 @@ function parseDataUrl(url: string) {
 
 export default async function (
   wasm: BufferSource | WebAssembly.Module | string
-) {
+): Promise<IWasmEncoderPublic> {
   const imports = {
     wasi_snapshot_preview1: {
       proc_exit: (code: number) => {
         throw new Error(`fatal error exit(${code})`);
       },
     },
-    env: { emscripten_notify_memory_growth },
+    env: { emscripten_notify_memory_growth: () => {} },
   };
 
   if (typeof wasm === "string" && !WebAssembly.instantiateStreaming) {
@@ -59,20 +64,26 @@ export default async function (
     WebAssembly.Instance
   >;
 
-  const { memory, _initialize, ...rest } = (output.instance || output)
-    .exports as unknown as IWasmEncoder;
-
-  const ret = {
-    ...rest,
+  const ret: IWasmEncoderPrivate = {
+    ...((output.instance || output).exports as unknown as IWasmEncoderPrivate),
     module: output.module || wasm,
+    getInt32Array(ptr, length) {
+      return new Int32Array(this.memory.buffer, ptr, length);
+    },
+    getFloat32Array(ptr, length) {
+      return new Float32Array(this.memory.buffer, ptr, length);
+    },
+    getUint8Array(ptr, length) {
+      return new Uint8Array(this.memory.buffer, ptr, length);
+    },
+    getString(ptr: number) {
+      const buf = this.getUint8Array(ptr);
+      const nullBytePtr = buf.indexOf(0);
+      const stringBuffer = buf.slice(0, nullBytePtr);
+      return String.fromCharCode(...stringBuffer);
+    },
   };
 
-  function emscripten_notify_memory_growth() {
-    ret.HEAPF32 = new Float32Array(memory.buffer);
-    ret.HEAP32 = new Int32Array(memory.buffer);
-    ret.HEAPU8 = new Uint8Array(memory.buffer);
-  }
-  emscripten_notify_memory_growth();
-  _initialize();
+  ret._initialize();
   return ret;
 }
