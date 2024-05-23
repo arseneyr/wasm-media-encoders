@@ -2,49 +2,27 @@ import { beforeAll, test, expect } from "vitest";
 import { createReadStream, promises as fs } from "fs";
 import { resolve } from "path";
 import { createEncoder, WasmMediaEncoder } from "../encoder";
-
-const wav = require("wav");
+import { interleavedPcm16ToFloat, readWavFile } from "./wavReader";
 
 let wavData: readonly Float32Array[];
+let smallWavData: readonly Float32Array[];
 let encoder: WasmMediaEncoder<"audio/ogg">;
 let format: any;
 
 beforeAll(async () => {
-  let onDone: (b: Int16Array) => void;
-  const buf: Buffer[] = [];
-  let p = new Promise<Int16Array>((res) => (onDone = res));
-
-  const reader = new wav.Reader();
-
-  reader.on("data", (data: Buffer) => {
-    buf.push(data);
-  });
-
-  reader.on("format", (data: any) => {
-    format = data;
-  });
-
-  reader.on("end", () => {
-    onDone(new Int16Array(Buffer.concat(buf).buffer));
-  });
-
-  createReadStream(
-    resolve(__dirname, "../wasm/lame/lame-src/testcase.wav")
-  ).pipe(reader);
-
-  [encoder, wavData] = await Promise.all([
+  [encoder, [wavData, format]] = await Promise.all([
     fs
       .readFile(resolve(__dirname, "../wasm/build/ogg.wasm"))
       .then((f) => createEncoder("audio/ogg", f)),
-    p.then((b) => {
-      const pcm_l = new Float32Array(b.length / 2);
-      const pcm_r = new Float32Array(b.length / 2);
-      b.forEach(
-        (s, i) => ((i & 1 ? pcm_r : pcm_l)[Math.floor(i / 2)] = s / 32768)
-      );
-      return [pcm_l, pcm_r] as const;
-    }),
+    readWavFile(createReadStream(resolve(__dirname, "test.wav"))).then(
+      ({ buffer, format }) => {
+        return [interleavedPcm16ToFloat(buffer), format] as const;
+      }
+    ),
   ]);
+  smallWavData = wavData.map((a) =>
+    a.subarray(30 * format.sampleRate, 31 * format.sampleRate)
+  );
 });
 
 test.each([{ vbrQuality: 3 }])("ogg %p", async (params) => {
@@ -55,9 +33,11 @@ test.each([{ vbrQuality: 3 }])("ogg %p", async (params) => {
     ...params,
   });
 
-  let outBuf = Buffer.from(encoder.encode(wavData));
+  let outBuf = Buffer.from(encoder.encode(smallWavData));
   outBuf = Buffer.concat([outBuf, encoder.finalize()]);
-  expect(outBuf).toMatchSnapshot();
+  const [key, value] = Object.entries(params)[0];
+  const filename = `test_${key}_${value}.ogg`;
+  expect(outBuf).toMatchFile(filename);
 });
 
 test.skip("vs c vorbis", async () => {
@@ -89,7 +69,7 @@ test("mono encoding", async () => {
     sampleRate: format.sampleRate,
     oggSerialNo: 0,
   });
-  let outBuf = Buffer.from(encoder.encode(wavData.slice(0, 1)));
+  let outBuf = Buffer.from(encoder.encode(smallWavData.slice(0, 1)));
   outBuf = Buffer.concat([outBuf, encoder.finalize()]);
-  expect(outBuf).toMatchSnapshot();
+  expect(outBuf).toMatchFile("mono.ogg");
 });

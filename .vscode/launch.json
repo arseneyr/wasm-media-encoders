@@ -12,8 +12,10 @@
       "runtimeArgs": [
         "run",
         "--inspect-brk",
-        "jest",
-        "--runInBand",
+        "vitest",
+        "--testTimeout",
+        "10000000",
+        "${file}"
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",

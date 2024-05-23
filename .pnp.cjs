@@ -32,6 +32,7 @@ const RAW_RUNTIME_STATE =
           ["@swc/core", "virtual:020d1b95a40f13b953827181cdfe3652c498e32ae1458a7e95e1e75b61eaf1cecba74ed0762ded3bf323bf1b3bbb9ee4e4f34731a08ce570d4ba89b42d8da83c#npm:1.4.16"],\
           ["@swc/helpers", "npm:0.5.10"],\
           ["@types/node", "npm:20.12.7"],\
+          ["@types/wav", "npm:1.0.4"],\
           ["@wessberg/rollup-plugin-ts", "virtual:020d1b95a40f13b953827181cdfe3652c498e32ae1458a7e95e1e75b61eaf1cecba74ed0762ded3bf323bf1b3bbb9ee4e4f34731a08ce570d4ba89b42d8da83c#npm:2.0.4"],\
           ["rollup", "npm:4.14.2"],\
           ["rollup-plugin-ts", "virtual:020d1b95a40f13b953827181cdfe3652c498e32ae1458a7e95e1e75b61eaf1cecba74ed0762ded3bf323bf1b3bbb9ee4e4f34731a08ce570d4ba89b42d8da83c#npm:3.4.5"],\
@@ -841,6 +842,14 @@ const RAW_RUNTIME_STATE =
         ],\
         "linkType": "HARD"\
       }],\
+      ["npm:20.12.12", {\
+        "packageLocation": "./.yarn/cache/@types-node-npm-20.12.12-3a45001f1f-f374b763c7.zip/node_modules/@types/node/",\
+        "packageDependencies": [\
+          ["@types/node", "npm:20.12.12"],\
+          ["undici-types", "npm:5.26.5"]\
+        ],\
+        "linkType": "HARD"\
+      }],\
       ["npm:20.12.7", {\
         "packageLocation": "./.yarn/cache/@types-node-npm-20.12.7-3bb3d3303d-dce80d63a3.zip/node_modules/@types/node/",\
         "packageDependencies": [\
@@ -882,6 +891,16 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./.yarn/cache/@types-ua-parser-js-npm-0.7.39-23053990d8-fea522f42d.zip/node_modules/@types/ua-parser-js/",\
         "packageDependencies": [\
           ["@types/ua-parser-js", "npm:0.7.39"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["@types/wav", [\
+      ["npm:1.0.4", {\
+        "packageLocation": "./.yarn/cache/@types-wav-npm-1.0.4-d7c7b91052-194e24de5f.zip/node_modules/@types/wav/",\
+        "packageDependencies": [\
+          ["@types/wav", "npm:1.0.4"],\
+          ["@types/node", "npm:20.12.12"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -3607,6 +3626,7 @@ const RAW_RUNTIME_STATE =
           ["@swc/core", "virtual:020d1b95a40f13b953827181cdfe3652c498e32ae1458a7e95e1e75b61eaf1cecba74ed0762ded3bf323bf1b3bbb9ee4e4f34731a08ce570d4ba89b42d8da83c#npm:1.4.16"],\
           ["@swc/helpers", "npm:0.5.10"],\
           ["@types/node", "npm:20.12.7"],\
+          ["@types/wav", "npm:1.0.4"],\
           ["@wessberg/rollup-plugin-ts", "virtual:020d1b95a40f13b953827181cdfe3652c498e32ae1458a7e95e1e75b61eaf1cecba74ed0762ded3bf323bf1b3bbb9ee4e4f34731a08ce570d4ba89b42d8da83c#npm:2.0.4"],\
           ["rollup", "npm:4.14.2"],\
           ["rollup-plugin-ts", "virtual:020d1b95a40f13b953827181cdfe3652c498e32ae1458a7e95e1e75b61eaf1cecba74ed0762ded3bf323bf1b3bbb9ee4e4f34731a08ce570d4ba89b42d8da83c#npm:3.4.5"],\

@@ -73,7 +73,7 @@ dev: wasm-dev js
 prod: wasm-prod js
 
 test: prod
-	$(yarn) run vitest run
+	$(yarn) run vitest run $(VITEST_ARGS)
 
 $(wasm_publish_path)/%.wasm : $(wasm_prod_path)/%.wasm | $(wasm_publish_path)
 	cp $< $@
@@ -93,6 +93,7 @@ $(lame_src_path)/%/lib/libmp3lame.a: \
 		CFLAGS="-DNDEBUG -DNO_STDIO $(emcc_flags)" \
 		LDFLAGS="$(emcc_flags)" \
 		--prefix="$(abspath $(lame_src_path)/$*)" \
+		--disable-dependency-tracking \
 		--disable-shared \
 		--disable-gtktest \
 		--disable-analyzer-hooks \

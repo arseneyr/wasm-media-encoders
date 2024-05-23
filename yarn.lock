@@ -650,6 +650,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node@npm:*":
+  version: 20.12.12
+  resolution: "@types/node@npm:20.12.12"
+  dependencies:
+    undici-types: "npm:~5.26.4"
+  checksum: 10c0/f374b763c744e8f16e4f38cf6e2c0eef31781ec9228c9e43a6f267880fea420fab0a238b59f10a7cb3444e49547c5e3785787e371fc242307310995b21988812
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:^16.11.7":
   version: 16.18.96
   resolution: "@types/node@npm:16.18.96"
@@ -698,6 +707,15 @@ __metadata:
   version: 0.7.39
   resolution: "@types/ua-parser-js@npm:0.7.39"
   checksum: 10c0/fea522f42dfc2854d9c93144a13c3db3bbe1c791458451db06d46bec7e1dbbe945d1542e02bb38378e39a04bdb7810b43e2ead26f9e6c250832e187312522708
+  languageName: node
+  linkType: hard
+
+"@types/wav@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "@types/wav@npm:1.0.4"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10c0/194e24de5f53b9cf58f0f0cf11814cfe22601ae873ec71f084cee9eb1f68ab38159e607f87f22598dc63fd2523075e004434dfc39a5f39c1cead4a35968cdfd9
   languageName: node
   linkType: hard
 
@@ -3115,6 +3133,7 @@ __metadata:
     "@swc/core": "npm:^1.4.16"
     "@swc/helpers": "npm:^0.5.10"
     "@types/node": "npm:^20.12.7"
+    "@types/wav": "npm:^1.0.4"
     "@wessberg/rollup-plugin-ts": "npm:^2.0.4"
     rollup: "npm:^4.14.2"
     rollup-plugin-ts: "npm:^3.4.5"
