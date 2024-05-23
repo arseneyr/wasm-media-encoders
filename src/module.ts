@@ -1,6 +1,6 @@
 import { XOR } from "./utils";
 
-interface IWasmEncoderPublic {
+type IWasmModuleExports = {
   enc_init(params: number): number;
   enc_encode(cfg: number, num_samples: number): number;
   enc_flush(cfg: number): number;
@@ -11,6 +11,16 @@ interface IWasmEncoderPublic {
   mime_type(): number;
   malloc(size: number): number;
   free(ptr: number): void;
+  memory: WebAssembly.Memory;
+  _initialize(): void;
+};
+
+type IWasmModulePublicExports = Omit<
+  IWasmModuleExports,
+  "memory" | "_initialize"
+>;
+
+interface IWasmEncoderPublic extends IWasmModulePublicExports {
   module: WebAssembly.Module;
   getInt32Array(ptr: number, length?: number): Int32Array;
   getUint8Array(ptr: number, length?: number): Uint8Array;
@@ -18,10 +28,7 @@ interface IWasmEncoderPublic {
   getString(ptr: number): string;
 }
 
-interface IWasmEncoderPrivate extends IWasmEncoderPublic {
-  memory: WebAssembly.Memory;
-  _initialize(): void;
-}
+interface IWasmEncoderPrivate extends IWasmModuleExports, IWasmEncoderPublic {}
 
 function parseDataUrl(url: string) {
   const parts = url.split(",");
@@ -65,7 +72,7 @@ export default async function (
   >;
 
   const ret: IWasmEncoderPrivate = {
-    ...((output.instance || output).exports as unknown as IWasmEncoderPrivate),
+    ...((output.instance || output).exports as IWasmModuleExports),
     module: output.module || wasm,
     getInt32Array(ptr, length) {
       return new Int32Array(this.memory.buffer, ptr, length);
