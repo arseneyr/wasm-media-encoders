@@ -240,15 +240,17 @@ To manually set up a development environment, you must install the following pre
 
 1. [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html#installation-instructions-using-the-emsdk-recommended) (v2.0.8)
 
-   _Note: The SDK should also include Node 12_
+2. Node 20
 
-2. _(Optional)_ Yarn
+Note that the Emscripten SDK includes Node 12 and will include it in the PATH. Node 20 must appear before Node 12 in the PATH.
 
-   ```
-   npm i -g yarn
-   ```
+Enable yarn using corepack:
 
-   The correct version of yarn is checked into the repo under `.yarn/releases` and is not required to build. However installing yarn will make CLI operations easier.
+```sh
+corepack enable
+# If no network access, install the checked-in version:
+# corepack install -g .devcontainer/corepack.tgz
+```
 
 ### Building
 
@@ -256,6 +258,12 @@ To create a release build:
 
 ```
 make
+```
+
+### Testing
+
+```
+make test
 ```
 
 ## License
