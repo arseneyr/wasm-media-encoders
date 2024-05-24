@@ -20,9 +20,7 @@ beforeAll(async () => {
       }
     ),
   ]);
-  smallWavData = wavData.map((a) =>
-    a.subarray(30 * format.sampleRate, 31 * format.sampleRate)
-  );
+  smallWavData = wavData.map((a) => a.subarray(0, 1 * format.sampleRate));
 });
 
 test.each([{ vbrQuality: 3 }])("ogg %p", async (params) => {
@@ -61,6 +59,18 @@ test("invalid params", () => {
       vbrQuality: 12,
     })
   ).toThrowError();
+});
+
+test("large buffer encoding", () => {
+  encoder.configure({
+    channels: format.channels,
+    sampleRate: format.sampleRate,
+    vbrQuality: 8,
+    oggSerialNo: 0,
+  });
+  let outBuf = Buffer.from(encoder.encode(wavData));
+  outBuf = Buffer.concat([outBuf, encoder.finalize()]);
+  expect(outBuf).toMatchFile("large.ogg");
 });
 
 test("mono encoding", async () => {

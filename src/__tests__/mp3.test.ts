@@ -30,9 +30,7 @@ beforeAll(async () => {
       }
     ),
   ]);
-  smallWavData = wavData.map((a) =>
-    a.subarray(30 * format.sampleRate, 31 * format.sampleRate)
-  );
+  smallWavData = wavData.map((a) => a.subarray(0, 1 * format.sampleRate));
 });
 
 test.each([
@@ -42,7 +40,7 @@ test.each([
   { bitrate: 128 as const },
   { outputSampleRate: 44100 as const },
   { outputSampleRate: 8000 as const },
-])("mp3 %p", async (params) => {
+])("mp3 %p", (params) => {
   encoder.configure({
     ...format,
     ...params,
@@ -52,7 +50,7 @@ test.each([
   outBuf = Buffer.concat([outBuf, encoder.finalize()]);
   const [key, value] = Object.entries(params)[0];
   const filename = `test_${key}_${value}.mp3`;
-  await expect(outBuf).toMatchFile(filename);
+  expect(outBuf).toMatchFile(filename);
 });
 
 test.skip("vs c lame", async () => {
@@ -94,12 +92,23 @@ test("invalid params", () => {
   ).toThrow(Error);
 });
 
-test("mono encoding", async () => {
+test("large buffer encoding", () => {
+  encoder.configure({
+    channels: format.channels,
+    sampleRate: format.sampleRate,
+    bitrate: 48,
+  });
+  let outBuf = Buffer.from(encoder.encode(wavData));
+  outBuf = Buffer.concat([outBuf, encoder.finalize()]);
+  expect(outBuf).toMatchFile("large.mp3");
+});
+
+test("mono encoding", () => {
   encoder.configure({
     channels: 1,
     sampleRate: format.sampleRate,
   });
   let outBuf = Buffer.from(encoder.encode(smallWavData.slice(0, 1)));
   outBuf = Buffer.concat([outBuf, encoder.finalize()]);
-  await expect(outBuf).toMatchFile("mono.mp3");
+  expect(outBuf).toMatchFile("mono.mp3");
 });
