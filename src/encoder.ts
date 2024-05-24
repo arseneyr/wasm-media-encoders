@@ -49,7 +49,7 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
   private get_pcm(num_samples: number) {
     const pcm_ptr_ptr = this.module.enc_get_pcm(this.ref, num_samples);
     if (!pcm_ptr_ptr) {
-      throw new Error("PCM buffer allocation failed!");
+      throw new Error("PCM buffer allocation failed");
     }
     const pcm_ptrs = this.module.getInt32Array(pcm_ptr_ptr, this.channelCount);
     return Array.from({ length: this.channelCount }, (_, i) =>
@@ -68,10 +68,12 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
       case 2:
         break;
       default:
-        throw new Error(`Invalid channel count ${params.channels}`);
+        throw new Error(
+          `Invalid channel count: ${params.channels}. ${this.mimeType} supports 1 or 2 channels.`
+        );
     }
     if (typeof params.sampleRate != "number") {
-      throw new Error(`Invalid sample rate ${params.sampleRate}`);
+      throw new Error(`Invalid sample rate: ${params.sampleRate}`);
     }
 
     return new Uint32Array([params.channels, params.sampleRate]);
@@ -145,7 +147,7 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
     try {
       this.ref = this.module.enc_init(paramAlloc);
       if (!this.ref) {
-        throw new Error("Encoder initialization failed!");
+        throw new Error("Encoder initialization failed");
       }
     } finally {
       this.module.free(paramAlloc);
@@ -153,12 +155,17 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
   }
 
   public encode(samples: readonly Float32Array[]) {
+    if (samples.length !== this.channelCount) {
+      throw new Error(
+        `encode must be called with channel number (${this.channelCount}) of Float32Arrays`
+      );
+    }
     const pcm = this.get_pcm(samples[0].length);
     pcm.forEach((b, i) => b.set(samples[i]));
 
     const bytes_written = this.module.enc_encode(this.ref, pcm[0].length);
     if (bytes_written < 0) {
-      throw new Error(`Error while encoding ${bytes_written}`);
+      throw new Error(`Error while encoding: ${bytes_written}`);
     }
     return this.get_out_buf(bytes_written);
   }
@@ -166,7 +173,7 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
   public finalize() {
     const bytes_written = this.module.enc_flush(this.ref);
     if (bytes_written < 0) {
-      throw new Error(`Error while encoding ${bytes_written}`);
+      throw new Error(`Error while encoding: ${bytes_written}`);
     }
 
     return this.get_out_buf(bytes_written);
