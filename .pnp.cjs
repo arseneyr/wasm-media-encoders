@@ -2046,7 +2046,7 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./.yarn/cache/make-dir-npm-3.1.0-d1d7505142-56aaafefc4.zip/node_modules/make-dir/",\
         "packageDependencies": [\
           ["make-dir", "npm:3.1.0"],\
-          ["semver", "npm:6.3.0"]\
+          ["semver", "npm:6.3.1"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -2187,7 +2187,7 @@ const RAW_RUNTIME_STATE =
           ["npmlog", "npm:4.1.2"],\
           ["request", "npm:2.88.2"],\
           ["rimraf", "npm:3.0.2"],\
-          ["semver", "npm:7.3.2"],\
+          ["semver", "npm:7.6.0"],\
           ["tar", "npm:6.0.5"],\
           ["which", "npm:2.0.2"]\
         ],\
@@ -2728,17 +2728,10 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["semver", [\
-      ["npm:6.3.0", {\
-        "packageLocation": "./.yarn/cache/semver-npm-6.3.0-b3eace8bfd-1f4959e15b.zip/node_modules/semver/",\
+      ["npm:6.3.1", {\
+        "packageLocation": "./.yarn/cache/semver-npm-6.3.1-bcba31fdbe-e3d79b6090.zip/node_modules/semver/",\
         "packageDependencies": [\
-          ["semver", "npm:6.3.0"]\
-        ],\
-        "linkType": "HARD"\
-      }],\
-      ["npm:7.3.2", {\
-        "packageLocation": "./.yarn/cache/semver-npm-7.3.2-161b023bbb-cea60e4412.zip/node_modules/semver/",\
-        "packageDependencies": [\
-          ["semver", "npm:7.3.2"]\
+          ["semver", "npm:6.3.1"]\
         ],\
         "linkType": "HARD"\
       }],\
