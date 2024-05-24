@@ -55,7 +55,7 @@ const esmConfig = {
     format: "es",
     file: "dist/es/index.mjs",
   },
-  // external: [/@swc\/helpers/],
+  external: [/@swc\/helpers/],
 
   plugins: plugins({
     targets: "supports es6-module and supports wasm",
