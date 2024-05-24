@@ -87,13 +87,20 @@ describe.each([
     expect(mockCallback.mock.calls[0][2]).toBe(mimeType);
   });
 
+  test("incorrect encode array count", async () => {
+    const encoder = await createEncoder(mimeType, wasm);
+    expect(encoder).toBeInstanceOf(WasmMediaEncoder);
+    encoder.configure({ sampleRate: 48000, channels: 2 });
+    expect(() => encoder.encode([new Float32Array(1024)])).toThrow();
+  });
+
   test("Buffer reallocation", async () => {
     const encoder = await createEncoder(mimeType, wasm);
     expect(encoder).toBeInstanceOf(WasmMediaEncoder);
     encoder.configure({ sampleRate: 48000, channels: 1 });
 
     // Emscripten initial memory size is 256 pages (64KiB each)
-    expect(encoder.encode([new Float32Array(16 * 1024 * 256)])).toBeInstanceOf(
+    expect(encoder.encode([new Float32Array(32 * 1024 * 256)])).toBeInstanceOf(
       Uint8Array
     );
   });
