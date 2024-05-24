@@ -44,6 +44,8 @@ package_version_define :=	-DNODE_PACKAGE_VERSION=\"`$(yarn) tsx --no-warnings pr
 js_output := index.cjs es/index.mjs esnext/index.mjs umd/WasmMediaEncoder.min.js
 js_output := $(addprefix $(js_build_path)/,$(js_output))
 
+unexport NODE_OPTIONS
+
 .SECONDARY: \
 	$(wasm_all_deps) \
 	$(wasm_all_deps_dirs) \
