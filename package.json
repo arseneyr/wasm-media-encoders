@@ -36,6 +36,7 @@
   "dependencies": {
     "@swc/helpers": "^0.5.10"
   },
+  "//": "typescript 5.4.3 workaround for https://github.com/yarnpkg/berry/issues/6270",
   "devDependencies": {
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
@@ -43,7 +44,6 @@
     "@swc/core": "^1.4.16",
     "@types/node": "^20.12.7",
     "@types/wav": "^1.0.4",
-    "@wessberg/rollup-plugin-ts": "^2.0.4",
     "rollup": "^4.14.2",
     "rollup-plugin-ts": "^3.4.5",
     "rollup-plugin-typescript": "^1.0.1",
