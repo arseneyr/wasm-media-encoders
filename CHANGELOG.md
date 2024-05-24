@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2024-05-24
+
+### Added
+
+- Ability to set output sample rate for the LAME encoder (#11)
+
+### Changed
+
+- Changed the internal WASM API, so added error checking for mismatched JS/WASM binaries
+- This package (except for UMD and esnext builds) now depends on `@swc/helpers` instead of `@babel/runtime`
+
+### Developer changes
+
+- Build toolchain upgraded to Node 20, Yarn 4, SWC, and vitest
+
 ## [0.6.4] - 2021-10-16
 
 ### Fixed

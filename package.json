@@ -1,6 +1,6 @@
 {
   "name": "wasm-media-encoders",
-  "version": "0.6.4",
+  "version": "0.7.0",
   "main": "dist/index.cjs",
   "module": "dist/es/index.mjs",
   "type": "module",
