@@ -968,10 +968,10 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["ajv", [\
-      ["npm:6.12.2", {\
-        "packageLocation": "./.yarn/cache/ajv-npm-6.12.2-7ff2bc9f1e-66c9453161.zip/node_modules/ajv/",\
+      ["npm:6.12.6", {\
+        "packageLocation": "./.yarn/cache/ajv-npm-6.12.6-4b5105e2b2-41e23642cb.zip/node_modules/ajv/",\
         "packageDependencies": [\
-          ["ajv", "npm:6.12.2"],\
+          ["ajv", "npm:6.12.6"],\
           ["fast-deep-equal", "npm:3.1.1"],\
           ["fast-json-stable-stringify", "npm:2.1.0"],\
           ["json-schema-traverse", "npm:0.4.1"],\
@@ -1767,7 +1767,7 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./.yarn/cache/har-validator-npm-5.1.3-f192d43c41-0f1d272d40.zip/node_modules/har-validator/",\
         "packageDependencies": [\
           ["har-validator", "npm:5.1.3"],\
-          ["ajv", "npm:6.12.2"],\
+          ["ajv", "npm:6.12.6"],\
           ["har-schema", "npm:2.0.0"]\
         ],\
         "linkType": "HARD"\
