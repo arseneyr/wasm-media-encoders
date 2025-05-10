@@ -24,13 +24,11 @@ function getLameHeader(buffer: Buffer): {
   frameCount?: number;
   tableOfContents?: Buffer;
   headerType?: "Xing" | "Info";
-  position?: number;
 } {
   const result: {
     frameCount?: number;
     tableOfContents?: Buffer;
     headerType?: "Xing" | "Info";
-    position?: number;
   } = {};
 
   for (let i = 0; i < buffer.length; i++) {
@@ -44,7 +42,6 @@ function getLameHeader(buffer: Buffer): {
       let offset = 8;
 
       result.headerType = fieldName;
-      result.position = i;
 
       if (flags & 0x00000001) {
         result.frameCount = buffer.readUInt32BE(headerStart + offset);
@@ -166,11 +163,6 @@ test("mono encoding", () => {
   });
   let outBuf = Buffer.from(encoder.encode(smallWavData.slice(0, 1)));
   outBuf = Buffer.concat([outBuf, encoder.finalize()]);
-
-  const headers = getLameHeader(outBuf);
-
-  console.log({ headers });
-
   expect(outBuf).toMatchFile("mono.mp3");
 });
 
