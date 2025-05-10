@@ -7,6 +7,8 @@ type IWasmModuleExports = {
   enc_free(cfg: number): void;
   enc_get_pcm(cfg: number, num_samples: number): number;
   enc_get_out_buf(cfg: number): number;
+  enc_get_headers_buf?: (cfg: number) => number;
+  enc_headers?: (cfg: number) => number;
   version(): number;
   mime_type(): number;
   malloc(size: number): number;
