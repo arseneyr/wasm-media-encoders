@@ -7,6 +7,7 @@
 #define MP3_BUFFER_SIZE(num_samples) (1.25 * (num_samples) + 7200)
 #define DEFAULT_MP3_SIZE MP3_BUFFER_SIZE(48000 * 30)
 #define DEFAULT_PCM_SAMPLE_COUNT 128
+#define LAME_MAX_HEADER_SIZE 4096
 
 typedef struct _CFG
 {
@@ -14,8 +15,11 @@ typedef struct _CFG
   float *pcm_ret[2];
   unsigned int pcm_sample_count;
   unsigned int channel_count;
+  unsigned char *headers_buffer;
+  unsigned int headers_buffer_size;
   unsigned char *mp3_buffer;
   unsigned int mp3_buffer_size;
+  int encoding_complete;
   lame_global_flags *gfp;
 } CFG, *PCFG;
 
@@ -52,6 +56,12 @@ unsigned char *enc_get_out_buf(PCFG cfg)
 }
 
 EMSCRIPTEN_KEEPALIVE
+unsigned char *enc_get_headers_buf(PCFG cfg)
+{
+  return cfg->headers_buffer;
+}
+
+EMSCRIPTEN_KEEPALIVE
 void enc_free(PCFG cfg)
 {
   if (cfg)
@@ -68,6 +78,11 @@ void enc_free(PCFG cfg)
     {
       free(cfg->mp3_buffer);
     }
+    if(cfg->headers_buffer)
+    {
+      free(cfg->headers_buffer);
+    }
+
     free(cfg);
   }
 }
@@ -87,9 +102,14 @@ PCFG enc_init(PPARAMS params)
     goto Cleanup;
   }
   cfg->channel_count = params->c.in_channel_count;
+  cfg->headers_buffer_size = LAME_MAX_HEADER_SIZE;
+  cfg->headers_buffer =
+      malloc(cfg->headers_buffer_size);
   cfg->mp3_buffer_size = DEFAULT_MP3_SIZE;
   cfg->mp3_buffer =
       malloc(cfg->mp3_buffer_size);
+
+  cfg->encoding_complete = 0;
 
   cfg->pcm_sample_count = DEFAULT_PCM_SAMPLE_COUNT * params->c.in_channel_count;
   cfg->pcm = malloc(cfg->pcm_sample_count * sizeof(*cfg->pcm));
@@ -104,7 +124,7 @@ PCFG enc_init(PPARAMS params)
   lame_set_num_channels(cfg->gfp, params->c.in_channel_count);
   lame_set_in_samplerate(cfg->gfp, params->c.in_sample_rate);
   lame_set_out_samplerate(cfg->gfp, params->out_sample_rate);
-  lame_set_bWriteVbrTag(cfg->gfp, 0);
+  lame_set_bWriteVbrTag(cfg->gfp, 1);
   if (params->vbr_quality >= 0)
   {
     lame_set_VBR(cfg->gfp, vbr_default);
@@ -131,6 +151,7 @@ Cleanup:
 EMSCRIPTEN_KEEPALIVE
 int enc_encode(PCFG cfg, unsigned int num_samples)
 {
+  cfg->encoding_complete = 0;
   while (MP3_BUFFER_SIZE(num_samples) > cfg->mp3_buffer_size)
   {
     cfg->mp3_buffer_size *= 2;
@@ -142,5 +163,16 @@ int enc_encode(PCFG cfg, unsigned int num_samples)
 EMSCRIPTEN_KEEPALIVE
 int enc_flush(PCFG cfg)
 {
+  cfg->encoding_complete = 1;
   return lame_encode_flush(cfg->gfp, cfg->mp3_buffer, cfg->mp3_buffer_size);
+}
+
+EMSCRIPTEN_KEEPALIVE
+int enc_headers(PCFG cfg)
+{
+  if (!cfg->encoding_complete) {
+    return 0;
+  }
+
+  return lame_get_lametag_frame(cfg->gfp, cfg->headers_buffer, LAME_MAX_HEADER_SIZE);
 }
