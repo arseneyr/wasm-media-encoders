@@ -32,7 +32,7 @@ npm install wasm-media-encoders
 With webpack or `.mjs` file in Node 12+:
 
 ```js
-import { createMp3Enoder, createOggEncoder } from "wasm-media-encoders";
+import { createMp3Encoder, createOggEncoder } from "wasm-media-encoders";
 
 createOggEncoder().then((encoder) => {
   /* Configure and use the encoder */
