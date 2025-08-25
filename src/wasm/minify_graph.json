@@ -4,7 +4,13 @@
   { "name": "enc_flush", "export": "enc_flush", "root": true },
   { "name": "enc_get_pcm", "export": "enc_get_pcm", "root": true },
   { "name": "enc_get_out_buf", "export": "enc_get_out_buf", "root": true },
+  {
+    "name": "enc_get_headers_buf",
+    "export": "enc_get_headers_buf",
+    "root": true
+  },
   { "name": "enc_free", "export": "enc_free", "root": true },
+  { "name": "enc_headers", "export": "enc_headers", "root": true },
   { "name": "version", "export": "version", "root": true },
   { "name": "mime_type", "export": "mime_type", "root": true },
   { "name": "memory", "export": "memory", "root": true },

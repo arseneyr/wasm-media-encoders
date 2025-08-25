@@ -62,6 +62,15 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
     return this.module.getUint8Array(ptr, size);
   }
 
+  private get_headers_buf(size: number) {
+    if (!this.module.enc_get_headers_buf) {
+      return new Uint8Array();
+    }
+
+    const ptr = this.module.enc_get_headers_buf(this.ref);
+    return this.module.getUint8Array(ptr, size);
+  }
+
   private get_common_params(params: BaseEncoderParams) {
     switch (params.channels) {
       case 1:
@@ -177,6 +186,20 @@ class WasmMediaEncoder<MimeType extends SupportedMimeTypes> {
     }
 
     return this.get_out_buf(bytes_written);
+  }
+
+  public getHeaders() {
+    if (!this.module.enc_headers) {
+      return new Uint8Array();
+    }
+
+    const header_size = this.module.enc_headers(this.ref);
+
+    if (header_size === 0) {
+      return new Uint8Array();
+    }
+
+    return this.get_headers_buf(header_size);
   }
 }
 

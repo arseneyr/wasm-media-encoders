@@ -7,6 +7,8 @@ import { Format } from "wav";
 
 type StereoFormat = Format & { channels: 2 };
 
+const TABLE_OF_CONTENTS_SIZE_BYTES = 100;
+
 let wavData: readonly Float32Array[];
 let smallWavData: readonly Float32Array[];
 let encoder: WasmMediaEncoder<"audio/mpeg">;
@@ -16,6 +18,57 @@ function assertChannelCount(format: Format): asserts format is StereoFormat {
   if (format.channels > 2) {
     throw new Error("too many channels");
   }
+}
+
+function getLameHeader(buffer: Buffer): {
+  frameCount?: number;
+  tableOfContents?: Buffer;
+  headerType?: "Xing" | "Info";
+} {
+  const result: {
+    frameCount?: number;
+    tableOfContents?: Buffer;
+    headerType?: "Xing" | "Info";
+  } = {};
+
+  for (let i = 0; i < buffer.length; i++) {
+    const fieldName: string = buffer.slice(i, i + 4).toString("utf8");
+    const isVbrMarker = fieldName === "Xing";
+    const isCbrMarker = fieldName === "Info";
+
+    if (isVbrMarker || isCbrMarker) {
+      const headerStart = i;
+      const flags = buffer.readUInt32BE(headerStart + 4);
+      let offset = 8;
+
+      result.headerType = fieldName;
+
+      if (flags & 0x00000001) {
+        result.frameCount = buffer.readUInt32BE(headerStart + offset);
+        offset += 4;
+      }
+
+      if (flags & 0x00000002) {
+        if (
+          headerStart + offset + TABLE_OF_CONTENTS_SIZE_BYTES <=
+          buffer.length
+        ) {
+          result.tableOfContents = Buffer.alloc(TABLE_OF_CONTENTS_SIZE_BYTES);
+          buffer.copy(
+            result.tableOfContents,
+            0,
+            headerStart + offset,
+            headerStart + offset + TABLE_OF_CONTENTS_SIZE_BYTES
+          );
+        }
+        offset += TABLE_OF_CONTENTS_SIZE_BYTES;
+      }
+
+      break;
+    }
+  }
+
+  return result;
 }
 
 beforeAll(async () => {
@@ -111,4 +164,40 @@ test("mono encoding", () => {
   let outBuf = Buffer.from(encoder.encode(smallWavData.slice(0, 1)));
   outBuf = Buffer.concat([outBuf, encoder.finalize()]);
   expect(outBuf).toMatchFile("mono.mp3");
+});
+
+test("cbr header encoding", () => {
+  encoder.configure({
+    channels: format.channels,
+    sampleRate: format.sampleRate,
+    bitrate: 128,
+  });
+  encoder.encode(smallWavData);
+  encoder.finalize();
+  let headerBuf = Buffer.from(encoder.getHeaders());
+
+  const headerInfo = getLameHeader(headerBuf);
+
+  expect(headerInfo.headerType).toBe("Info");
+  expect(headerInfo.frameCount).toBeDefined();
+  expect(headerInfo.frameCount).toBeGreaterThan(0);
+  expect(headerInfo.tableOfContents).toBeDefined();
+});
+
+test("vbr header encoding", () => {
+  encoder.configure({
+    channels: format.channels,
+    sampleRate: format.sampleRate,
+    vbrQuality: 5,
+  });
+  encoder.encode(smallWavData);
+  encoder.finalize();
+  let headerBuf = Buffer.from(encoder.getHeaders());
+
+  const headerInfo = getLameHeader(headerBuf);
+
+  expect(headerInfo.headerType).toBe("Xing");
+  expect(headerInfo.frameCount).toBeDefined();
+  expect(headerInfo.frameCount).toBeGreaterThan(0);
+  expect(headerInfo.tableOfContents).toBeDefined();
 });
